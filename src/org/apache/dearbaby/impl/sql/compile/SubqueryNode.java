@@ -737,17 +737,25 @@ class SubqueryNode extends ValueNode {
 		if (leftOperand == null) {
 			return super.match();
 		}
+		boolean def= false;
+		if(subqueryType==NOT_IN_SUBQUERY){
+			def=true;
+		}
 		Object obj = leftOperand.getVal();
 		resultSet.fetchInit();
 		while (resultSet.fetch()) {
 			if (resultSet.match()) {
 				Object rObj = resultSet.getVal();
 				if (ColCompare.compareObject(obj, rObj) == 0) { 
-					return true;
-				}
+					if(subqueryType== IN_SUBQUERY){
+						return true;
+					}else{
+						return false;
+					}
+				} 
 			}
 		}
-		return false;
+		return def;
 	}
 
 	/**
