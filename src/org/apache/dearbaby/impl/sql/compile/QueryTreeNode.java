@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.SortedSet;
 
 import org.apache.dearbaby.query.QueryMananger;
-import org.apache.dearbaby.query.QueryTrack;
+import org.apache.dearbaby.query.QueryResultManager;
 import org.apache.dearbaby.query.SinQuery;
 import org.apache.derby.catalog.AliasInfo;
 import org.apache.derby.catalog.TypeDescriptor;
@@ -94,7 +94,7 @@ public abstract class QueryTreeNode implements Visitable {
 	private ArrayList<String> visitableTags;
 
 	public QueryMananger qm;
-	public QueryTrack qs = new QueryTrack();
+	public QueryResultManager qs = new QueryResultManager();
 
 	/**
 	 * In Derby SQL Standard Authorization, views, triggers and constraints
