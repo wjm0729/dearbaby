@@ -24,8 +24,8 @@ package	org.apache.dearbaby.impl.sql.compile;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.Visitor;
+import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
  * An OrderByColumn is a column in the ORDER BY clause.  An OrderByColumn
@@ -40,7 +40,7 @@ class OrderByColumn extends OrderedColumn {
 	private ResultColumn	resultCol;
 	private boolean			ascending = true;
 	private boolean			nullsOrderedLow = false;
-	private ValueNode expression;
+	public ValueNode expression;
 	private OrderByList     list;
     /**
      * If this sort key is added to the result column list then it is at result column position

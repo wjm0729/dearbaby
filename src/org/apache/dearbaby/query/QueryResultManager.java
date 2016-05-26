@@ -7,7 +7,8 @@ public class QueryResultManager extends QueryMananger {
 
 	private boolean isEnd = false;
 	private boolean first = true;
-
+	public IExecutor executor;
+	
 	public boolean next() {
 		if (first == true) {
 			first = false;

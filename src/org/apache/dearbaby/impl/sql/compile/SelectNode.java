@@ -23,6 +23,7 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Limits;
@@ -128,6 +129,8 @@ class SelectNode extends ResultSetNode {
 	private int nestingLevel;
 
 	List<QueryTreeNode> qryNodes = new ArrayList<QueryTreeNode>();
+	
+	
 
 	SelectNode(ResultColumnList selectList, FromList fromList,
 			ValueNode whereClause, GroupByList groupByList,
@@ -231,6 +234,15 @@ class SelectNode extends ResultSetNode {
 			}
 			// qm.addCol(c.getTableName(), c._columnName);
 		}
+		
+		/*group by*/
+		if(groupByList!=null){
+			for(GroupByColumn col: groupByList.v){
+				ColumnReference colRef=(ColumnReference)col.columnExpression;
+				colRef.genQuery(qm);
+			
+			};
+		}
 		if (whereClause != null)
 			whereClause.genQuery(qm);
 
@@ -244,6 +256,50 @@ class SelectNode extends ResultSetNode {
 			QueryTreeNode n = qryNodes.get(i);
 			n.exeQuery();
 		}
+		
+	}
+	
+	@Override
+	public void exeGroupBy( ){
+		if(groupByList==null){
+			return;
+		}
+		
+		fetchInit();
+		ArrayList<Map> res=new ArrayList<Map>();
+		while(fetch()){
+			if(match()){
+				for(GroupByColumn col: groupByList.v){
+					ColumnReference colRef=(ColumnReference)col.columnExpression;
+					Object obj = qm.findFetchRow(colRef.getTableName()).getCurrCol(colRef.getColumnName());
+					
+				};
+				
+			}
+		}
+		
+		
+		
+	}
+	
+	@Override
+	public void exeFilter0(){
+		while(fetch()){
+			if(match()){
+				for (Object o : resultColumns.v) {
+					ResultColumn t = (ResultColumn) o;
+					if (t._expression instanceof ColumnReference) {
+						ColumnReference c=(ColumnReference)t._expression;
+						String alias = c._qualifiedTableName.tableName;
+						String cName = t.getSourceColumnName(); 
+						Object obj = qm.findFetchRow(alias).getCurrCol(cName);
+						rowValue.add2Row(alias, cName, obj);
+					}
+				}
+				rowValue.flushRow();
+			}
+		}
+		isFilter=true;
 	}
 
 	@Override
@@ -256,6 +312,12 @@ class SelectNode extends ResultSetNode {
 
 	@Override
 	public boolean fetch() {
+		if(isFilter==true){
+			return rowValue.next();
+		}
+		return _fetch();
+	}
+	public boolean _fetch() {
 		boolean f = true;
 		if (first == true) {
 			f = fetch0();

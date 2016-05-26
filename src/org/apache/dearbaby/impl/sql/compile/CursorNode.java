@@ -146,6 +146,14 @@ public class CursorNode extends DMLStatementNode {
 	@Override
 	public void genQuery0() {
 		resultSet.genQuery(qm);
+		/*order by*/
+		if(orderByList!=null){
+			for(OrderByColumn col: orderByList.v){
+				ColumnReference colRef=(ColumnReference)col.expression;
+				colRef.genQuery(qm);
+			
+			};
+		}
 	}
 
 	@Override
@@ -161,6 +169,11 @@ public class CursorNode extends DMLStatementNode {
 	@Override
 	public boolean match() {
 		return resultSet.match();
+	}
+	
+	@Override
+	public Object getColVal(String tbl , String col) {
+		return resultSet.getColVal(tbl,col);
 	}
 
 	/**

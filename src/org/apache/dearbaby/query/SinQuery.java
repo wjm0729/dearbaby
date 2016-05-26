@@ -1,15 +1,10 @@
 package org.apache.dearbaby.query;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
-import org.apache.dearbaby.util.MysqlUtil;
 
 public class SinQuery {
 
@@ -22,7 +17,10 @@ public class SinQuery {
 
 	public String sql = "";
 
+	public IExecutor executor;
+	
 	public QueryTreeNode node;
+	
 	
 	public boolean isOrCond=false;
 
@@ -83,30 +81,19 @@ public class SinQuery {
 
 	public void exeSelect() {
 		try {
-
+			
 			if (sql == null || sql.length() == 0) {
 				return;
 			}
-			Connection conn;
-			Class.forName("com.mysql.jdbc.Driver");//
-
-			conn = DriverManager.getConnection(MysqlUtil.url, "root", "123456");
-
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				Map m = new HashMap();
-				for (String c : columns) {
-					Object o = rs.getObject(c);
-					m.put(c, o);
-				}
-				results.add(m);
-			}
-			System.out.println("results-size:  " + results.size());
+			results=executor.exe(sql, columns);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void exeGroupBy(QueryTreeNode qn){
+		
 	}
 
 }

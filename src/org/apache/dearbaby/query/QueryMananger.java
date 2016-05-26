@@ -23,6 +23,7 @@ public class QueryMananger {
 			found = new SinQuery();
 			found.alias = alias;
 			found.tableName = table;
+			found.executor=executor;
 			querys.add(found);
 		}
 		return found;

@@ -17,10 +17,11 @@ public class DearTest {
 	public static void run3() {
 		String sql="";
 		sql = "SELECT  a.doctorName FROM DoctorInforParameter a WHERE a.doctorid IN (SELECT c.doctorid FROM WorkInforParameter c)";
-	//	sql="SELECT a.doctorName FROM WorkInforParameter  a , doctorinforparameter b WHERE  a.DoctorId=b.DoctorId  OR a.Id>1380";
-		//sql = "SELECT a.workid FROM WorkInforParameter  a , OrderListParameter e WHERE a.id IN(SELECT b.id FROM DoctorInforParameter b WHERE a.DoctorId=b.DoctorId AND b.DeptId IN(SELECT c.DeptId FROM DeptInforParameter c WHERE c.DeptName=a.DeptName)) or e.WorkId=a.WorkId ";
+		sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE  a.DoctorId=b.DoctorId  OR a.Id>1380";
+		sql="SELECT a.doctorName  FROM WorkInforParameter  a   WHERE  a.DoctorId in (select b.DoctorId from doctorinforparameter b)  ";
 		
-		DearSelector selector =new DearSelector();
+		//sql="SELECT a.doctorName from DoctorInforParameter  a group by a.doctorid";
+		DearSelector selector =new DearSelector();  
 		 selector.bootstrap(sql);
 		 while(true){
 			 Map map=selector.fetch();

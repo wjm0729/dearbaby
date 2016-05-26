@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
+import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.query.QueryResultManager;
 import org.apache.dearbaby.query.SinQuery;
@@ -95,7 +96,9 @@ public abstract class QueryTreeNode implements Visitable {
 
 	public QueryMananger qm;
 	public QueryResultManager qs = new QueryResultManager();
-
+	public boolean isFilter =false;
+	public FilterRowValue rowValue=new FilterRowValue();
+	
 	/**
 	 * In Derby SQL Standard Authorization, views, triggers and constraints
 	 * execute with definer's privileges. Taking a specific eg of views user1
@@ -187,12 +190,23 @@ public abstract class QueryTreeNode implements Visitable {
 		for (SinQuery q : qs.querys) {
 			q.genSql();
 			q.exeSelect();
+			
 		}
+		
 		exeQuery0();
+		exeFilter();
+	}
+	
+	public void exeGroupBy(   ){
+		
 	}
 
 	public boolean fetch() {
-		return fetch0();
+		if(isFilter==false){
+			return fetch0();
+		}else{
+			return rowValue.next();
+		}
 	}
 
 	final public void addCuRow() {
@@ -209,7 +223,11 @@ public abstract class QueryTreeNode implements Visitable {
 	}
 
 	public void fetchInit() {
-		qs.init();
+		if(isFilter==false){
+			qs.init();
+		}else{
+			rowValue.again();
+		}
 	}
 
 	public void fetchEnd() {
@@ -221,6 +239,21 @@ public abstract class QueryTreeNode implements Visitable {
 		return true;
 	}
 
+	public void exeFilter(){
+		exeFilter0();
+	}
+	
+	public void exeFilter0(){
+		
+	}
+	
+	public Object getColVal(String alias,String colName){
+		if(isFilter==true){
+			return rowValue.getCurrVal(alias, colName);
+		}else{
+			return qm.findFetchRow(alias).getCurrCol(colName);
+		}
+	}
 	public Object getVal() {
 		Object obj = null;
 		try {
@@ -228,12 +261,12 @@ public abstract class QueryTreeNode implements Visitable {
 				ResultColumn c = (ResultColumn) this;
 				String alias = c.getTableName();
 				String cName = c.getSourceColumnName();
-				obj = qm.findFetchRow(alias).getCurrCol(cName);
+				obj = getColVal(alias,cName);
 			} else if (this instanceof ColumnReference) {
 				ColumnReference c = (ColumnReference) this;
 				String alias = c.getTableName();
 				String cName = c._columnName;
-				obj = qm.findFetchRow(alias).getCurrCol(cName);
+				obj =  getColVal(alias,cName);
 			} else if (this instanceof ConstantNode) {
 				ConstantNode t = (ConstantNode) this;
 				obj = t.getValue().getObject();
@@ -245,8 +278,11 @@ public abstract class QueryTreeNode implements Visitable {
 				}
 				ResultColumn c = list.get(0);
 				c.qm = qm;
-
-				obj = c.getVal();
+				if(isFilter==false){
+					obj = c.getVal();
+				}else{
+					obj = rowValue.getCurrVal(c.getTableName(), c.getSourceColumnName());
+				}
 				return obj;
 			}
 		} catch (Exception e) {

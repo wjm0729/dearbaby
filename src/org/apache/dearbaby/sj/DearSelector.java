@@ -45,7 +45,7 @@ public class DearSelector {
 						ColumnReference c=(ColumnReference)t._expression;
 						String alias = c._qualifiedTableName.tableName;
 						String cName = t.getSourceColumnName(); 
-						Object obj =qt.qm.findFetchRow(alias).getCurrCol(cName);
+						Object obj =qt.getColVal(alias,cName);
 						map.put(alias+"."+cName, obj);
 						
 					} 
@@ -54,18 +54,14 @@ public class DearSelector {
 				System.out.println("fetch...... "
 						+ i
 						+ " ,"
-						+ qt.qm.fetchRow.get(0).getCurrRow()
-								.get("workId".toUpperCase())
-						+ "  "
-						+ qt.qm.fetchRow.get(0).getCurrRow()
-								.get("workDate".toUpperCase()));
+						+ map);
 				
 				i++;
 				return map;
 			}
 
 			qt.fetchEnd();
-
+ 
 		}
 		return null;
 	}
