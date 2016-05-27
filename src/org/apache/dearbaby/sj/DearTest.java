@@ -19,6 +19,7 @@ public class DearTest {
 		sql = "SELECT  a.doctorName FROM DoctorInforParameter a WHERE a.doctorid IN (SELECT c.doctorid FROM WorkInforParameter c)";
 		sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE  a.DoctorId=b.DoctorId  OR a.Id>1380";
 		sql="SELECT a.doctorName  FROM WorkInforParameter  a   WHERE  a.DoctorId in (select b.DoctorId from doctorinforparameter b)  ";
+		sql="SELECT a.doctorId, sum(a.flag)    FROM WorkInforParameter  a   WHERE  a.DoctorId in (select b.DoctorId from doctorinforparameter b)   ";
 		
 		//sql="SELECT a.doctorName from DoctorInforParameter  a group by a.doctorid";
 		DearSelector selector =new DearSelector();  

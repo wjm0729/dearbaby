@@ -22,6 +22,7 @@
 package	org.apache.dearbaby.impl.sql.compile;
 
 import java.util.List;
+
 import org.apache.derby.catalog.AliasInfo;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
@@ -29,20 +30,20 @@ import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.services.loader.ClassFactory;
 import org.apache.derby.iapi.services.loader.ClassInspector;
-import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.CompilerContext;
 import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.sql.dictionary.AliasDescriptor;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.SchemaDescriptor;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
+import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
  * An Aggregate Node is a node that represents a set function/aggregate.
  * It used for all system aggregates as well as user defined aggregates.
  */
 
-class AggregateNode extends UnaryOperatorNode
+public class AggregateNode extends UnaryOperatorNode
 {
 	private boolean					distinct;
 
@@ -52,7 +53,7 @@ class AggregateNode extends UnaryOperatorNode
 	private String					aggregateDefinitionClassName;
     private Class<?>                aggregateDefinitionClass;
 	private ClassInspector			classInspector;
-	private String					aggregateName;
+	public String					aggregateName;
 
 	/*
 	** We wind up pushing all aggregates into a different
@@ -216,7 +217,12 @@ class AggregateNode extends UnaryOperatorNode
 
 		return generatedRef;
 	}
-
+    
+    @Override
+    public void genQuery0(){
+    	operand.genQuery(qm);
+    }
+    
 	/**
 	 * Get the AggregateDefinition.
 	 *

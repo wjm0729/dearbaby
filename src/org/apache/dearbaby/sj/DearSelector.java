@@ -3,6 +3,7 @@ package org.apache.dearbaby.sj;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.dearbaby.impl.sql.compile.AggregateNode;
 import org.apache.dearbaby.impl.sql.compile.ColumnReference;
 import org.apache.dearbaby.impl.sql.compile.ResultColumn;
 import org.apache.dearbaby.impl.sql.compile.ResultColumnList;
@@ -34,10 +35,11 @@ public class DearSelector {
 	public  Map  fetch(){
 		int i=0;
 		int j=0;
-		Map map=new HashMap();
+	
 		while (qt.fetch()) {
 			 
 			if (qt.match()) {
+				Map map=new HashMap();
 				ResultColumnList resultColumns= qt.getCols(); 
 				for (Object o : resultColumns.v) {
 					ResultColumn t = (ResultColumn) o;
@@ -48,7 +50,18 @@ public class DearSelector {
 						Object obj =qt.getColVal(alias,cName);
 						map.put(alias+"."+cName, obj);
 						
-					} 
+					} else if (t._expression instanceof AggregateNode) {
+						 
+						AggregateNode agg=(AggregateNode)t._expression;
+						 
+						ColumnReference c=(ColumnReference)agg.operand;
+						String name=t._underlyingName;
+						if(name==null){
+							name=c.getColumnName();
+						}
+						Object obj =qt.getColVal("#",name);
+						map.put("#"+"."+name, obj);
+					}
 					
 				}
 				System.out.println("fetch...... "

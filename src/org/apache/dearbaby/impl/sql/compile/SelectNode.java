@@ -23,8 +23,9 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import org.apache.dearbaby.query.RowColumn;
+import org.apache.dearbaby.util.ColCompare;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Limits;
 import org.apache.derby.iapi.reference.SQLState;
@@ -127,6 +128,8 @@ class SelectNode extends ResultSetNode {
 	ValueNode havingClause;
 
 	private int nestingLevel;
+	
+	boolean haveAggr=false;
 
 	List<QueryTreeNode> qryNodes = new ArrayList<QueryTreeNode>();
 	
@@ -229,7 +232,11 @@ class SelectNode extends ResultSetNode {
 			if (t._expression instanceof ColumnReference) {
 				ColumnReference c = (ColumnReference) t._expression;
 				c.genQuery(qm);
-			} else if (t._expression instanceof SubqueryNode) {
+			} else if (t._expression instanceof AggregateNode) {
+				haveAggr=true;
+				AggregateNode agg=(AggregateNode)t._expression;
+				agg.genQuery(qm);
+			}else if (t._expression instanceof SubqueryNode) {
 				t._expression.genQuery(qm);
 			}
 			// qm.addCol(c.getTableName(), c._columnName);
@@ -259,26 +266,196 @@ class SelectNode extends ResultSetNode {
 		
 	}
 	
-	@Override
-	public void exeGroupBy( ){
-		if(groupByList==null){
-			return;
+	RowColumn noGroupByOneRow=null;
+	private void noGroupBy(){
+		if(haveAggr==true){
+			noGroupByHaveAggr();
+		}else{
+			noGroupByNoAggr();
+		}
+	}
+	private void noGroupByNoAggr(){
+		RowColumn rc=new RowColumn();
+		for (Object o : resultColumns.v) {
+			ResultColumn t = (ResultColumn) o;
+			if (t._expression instanceof ColumnReference) {
+				ColumnReference c=(ColumnReference)t._expression;
+				String alias = c._qualifiedTableName.tableName;
+				String cName = t.getSourceColumnName(); 
+				Object obj = qm.findFetchRow(alias).getCurrCol(cName);
+				rc.add2Row(alias, cName, obj);
+			}
+		}
+		rowValue.add2Row(rc);
+		rowValue.flushRow();
+	}
+	
+	private void noGroupByHaveAggr(){
+		boolean first=false;
+	 
+		if(noGroupByOneRow==null){
+			noGroupByOneRow=new RowColumn();
+			first=true;
+			for (Object o : resultColumns.v) {
+				ResultColumn t = (ResultColumn) o;
+				if (t._expression instanceof ColumnReference) {
+					ColumnReference c=(ColumnReference)t._expression;
+					String alias = c._qualifiedTableName.tableName;
+					String cName = t.getSourceColumnName(); 
+					Object obj = qm.findFetchRow(alias).getCurrCol(cName);
+					noGroupByOneRow.add2Row(alias, cName, obj);
+				}
+			}
+			rowValue.flushTheRow(noGroupByOneRow);
+			//rowValue.flushRow();
 		}
 		
-		fetchInit();
-		ArrayList<Map> res=new ArrayList<Map>();
-		while(fetch()){
-			if(match()){
-				for(GroupByColumn col: groupByList.v){
-					ColumnReference colRef=(ColumnReference)col.columnExpression;
-					Object obj = qm.findFetchRow(colRef.getTableName()).getCurrCol(colRef.getColumnName());
-					
-				};
-				
+		for (Object o : resultColumns.v) {
+			ResultColumn t = (ResultColumn) o;
+			if (t._expression instanceof AggregateNode) {
+				AggregateNode agg=(AggregateNode)t._expression;
+				String fun=agg.aggregateName; 
+				aggre(noGroupByOneRow,first,fun,t);
+			}
+			
+		}
+		
+	}
+	 
+	public void groupBy(  ){
+		if(groupByList==null){
+			return  ;
+		}
+		
+		RowColumn rcc=new RowColumn();
+		for(GroupByColumn col: groupByList.v){
+			ColumnReference c=(ColumnReference)col.columnExpression;
+		    String alias = c._qualifiedTableName.tableName;
+			String cName = c._columnName;
+			Object obj = qm.findFetchRow(alias).getCurrCol(cName);
+			rcc.add2Row(alias,cName,obj);
+		};
+		RowColumn tmp =rowValue.findRow(rcc);
+		if(tmp==null){
+		   tmp=rcc;
+		   dealAggr(tmp,true);
+		}else{
+			dealAggr(tmp,false);
+		}
+		rowValue.add2Row(tmp);
+		rowValue.flushRow();
+	}
+	
+	private void dealAggr(RowColumn rcc,boolean first){
+		 
+			for (Object o : resultColumns.v) {
+				ResultColumn t = (ResultColumn) o;
+				if (t._expression instanceof AggregateNode) {
+					AggregateNode agg=(AggregateNode)t._expression;
+					String fun=agg.aggregateName; 
+					aggre(rcc,first,fun,t);
+					   
+				}
+			}
+	}
+
+	private void aggre(RowColumn rc,boolean first,String fun, ResultColumn t){
+		if(fun.equalsIgnoreCase("COUNT")){
+			aggreCount(rc,first,t);
+		}
+		if(fun.equalsIgnoreCase("SUM")){
+			aggreSum(rc,first,t);
+		}
+		if(fun.equalsIgnoreCase("MAX")){
+			aggreMinOrMax(rc,first,t,true);
+		}
+		if(fun.equalsIgnoreCase("min")){
+			aggreMinOrMax(rc,first,t,false);
+		}
+	}
+	
+	private void aggreCount(RowColumn rc,boolean first, ResultColumn t){
+		AggregateNode agg=(AggregateNode)t._expression;
+	 
+		ColumnReference c=(ColumnReference)agg.operand;
+		String name=t._underlyingName;
+		if(name==null){
+			name=c.getColumnName();
+		}
+		if(first){
+			rc.add2Row("#", name, 1);;
+		}else{
+			Object o=rc.findVal("#",name);
+			if(o==null){
+				rc.add2Row("#", name, 1);;
+			}else{
+				int i=Integer.valueOf(o.toString());
+				i++;
+				rc.replaceRow("#", name, i);
 			}
 		}
 		
+	}
+	
+	
+	private void aggreSum(RowColumn rc,boolean first, ResultColumn t){
+		AggregateNode agg=(AggregateNode)t._expression;
+	 
+		ColumnReference c=(ColumnReference)agg.operand;
+		String name=t._underlyingName;
+		if(name==null){
+			name=c.getColumnName();
+		}
+		String alias = c._qualifiedTableName.tableName;
+		String cName = c.getColumnName(); 
+		Object obj = qm.findFetchRow(alias).getCurrCol(cName);
+		int ri=0;
+		if(obj!=null){
+			ri=Integer.valueOf(obj.toString());
+		}
+		if(first){
+			rc.add2Row("#", name, ri);;
+		}else{
+			Object o=rc.findVal("#",name);
+			
+			 
+			if(o==null){
+				rc.add2Row("#", name,ri);;
+			}else{
+				int i=Integer.valueOf(o.toString());
+				rc.replaceRow("#", name, i+ri);
+			}
+		}
 		
+	}
+	//max-true
+	private void aggreMinOrMax(RowColumn rc,boolean first, ResultColumn t,boolean max){
+		AggregateNode agg=(AggregateNode)t._expression;
+	 
+		ColumnReference c=(ColumnReference)agg.operand;
+		String name=t._underlyingName;
+		if(name==null){
+			name=c.getColumnName();
+		}
+		String alias = c._qualifiedTableName.tableName;
+		String cName = c.getColumnName(); 
+		Object obj = qm.findFetchRow(alias).getCurrCol(cName);
+		
+		if(first){
+			rc.add2Row("#", name, obj);;
+		}else{
+			Object o=rc.findVal("#",name);
+			if(o==null){
+				rc.add2Row("#", name, obj);;
+			}else{
+				if (max==false&&ColCompare.compareObject(o, obj) < 0){
+					rc.replaceRow("#", name, obj);
+				}
+				if (max==true&&ColCompare.compareObject(o, obj) > 0){
+					rc.replaceRow("#", name, obj);
+				}
+			}
+		}
 		
 	}
 	
@@ -286,21 +463,17 @@ class SelectNode extends ResultSetNode {
 	public void exeFilter0(){
 		while(fetch()){
 			if(match()){
-				for (Object o : resultColumns.v) {
-					ResultColumn t = (ResultColumn) o;
-					if (t._expression instanceof ColumnReference) {
-						ColumnReference c=(ColumnReference)t._expression;
-						String alias = c._qualifiedTableName.tableName;
-						String cName = t.getSourceColumnName(); 
-						Object obj = qm.findFetchRow(alias).getCurrCol(cName);
-						rowValue.add2Row(alias, cName, obj);
-					}
+				if(groupByList==null){
+					noGroupBy() ;
+				}else{
+					groupBy();
 				}
-				rowValue.flushRow();
 			}
 		}
 		isFilter=true;
 	}
+	
+	
 
 	@Override
 	public boolean match() {

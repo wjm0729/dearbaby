@@ -69,10 +69,10 @@ public class ResultColumn extends ValueNode implements ResultColumnDescriptor,
 	 * point to the underlying name and _derivedColumnName will point to the
 	 * name from the derived column list.
 	 */
-	private String _underlyingName; // name from the actual data source
-	private String _derivedColumnName;
-	private String _unqualifiedTableName;
-	private String _unqualifiedSourceTableName;
+	public String _underlyingName; // name from the actual data source
+	public String _derivedColumnName;
+	public String _unqualifiedTableName;
+	public String _unqualifiedSourceTableName;
 	// Used by metadata api ResultSetMetaData.getSchemaName to get a column's
 	// table's schema.
 	private String _sourceSchemaName;

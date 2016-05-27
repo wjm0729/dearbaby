@@ -24,6 +24,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 import java.lang.reflect.Modifier;
 import java.sql.Types;
 import java.util.List;
+
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
 import org.apache.derby.iapi.reference.SQLState;
@@ -31,12 +32,12 @@ import org.apache.derby.iapi.services.classfile.VMOpcode;
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.store.access.Qualifier;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.TypeId;
 import org.apache.derby.iapi.util.JBitSet;
+import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
  * A UnaryOperatorNode represents a built-in unary operator as defined by
@@ -57,7 +58,7 @@ class UnaryOperatorNode extends OperatorNode
 	/**
 	 * WARNING: operand may be NULL for COUNT(*).  
 	 */
-	ValueNode	operand;
+	public ValueNode	operand;
 
 	// At the time of adding XML support, it was decided that
 	// we should avoid creating new OperatorNodes where possible.
