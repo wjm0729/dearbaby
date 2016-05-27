@@ -3,6 +3,7 @@ package org.apache.dearbaby.util;
 import org.apache.dearbaby.impl.sql.compile.AggregateNode;
 import org.apache.dearbaby.impl.sql.compile.ColumnReference;
 import org.apache.dearbaby.impl.sql.compile.ResultColumn;
+import org.apache.dearbaby.impl.sql.compile.SubqueryNode;
 
 public class QueryUtil {
 	public static String getAggrColName(ResultColumn t){
@@ -17,6 +18,16 @@ public class QueryUtil {
 		if(name==null){
 			name= fun+"("+alias+"."+cName+")";
 		}
+		
+		return name;
+	}
+	
+	public static String getSubSelColName(ResultColumn t){
+		SubqueryNode agg=(SubqueryNode)t._expression; 
+		 
+	 
+		String name=t._underlyingName;
+	
 		
 		return name;
 	}

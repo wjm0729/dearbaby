@@ -64,7 +64,7 @@ import org.apache.derby.shared.common.sanity.SanityManager;
  *
  */
 
-class SubqueryNode extends ValueNode {
+public class SubqueryNode extends ValueNode {
 	/*
 	 * * This must be a single-column result set. If the subquery is* not
 	 * quantified, it must also be a single-row result set - that is,*

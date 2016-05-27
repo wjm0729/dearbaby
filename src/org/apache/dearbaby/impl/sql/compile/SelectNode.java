@@ -24,6 +24,7 @@ package org.apache.dearbaby.impl.sql.compile;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.RowColumn;
 import org.apache.dearbaby.util.ColCompare;
 import org.apache.dearbaby.util.QueryUtil;
@@ -238,7 +239,9 @@ class SelectNode extends ResultSetNode {
 				AggregateNode agg=(AggregateNode)t._expression;
 				agg.genQuery(qm);
 			}else if (t._expression instanceof SubqueryNode) {
-				t._expression.genQuery(qm);
+				SubqueryNode sn=(SubqueryNode)t._expression;
+				sn.genQuery(qm);
+				System.out.println("dddd"+sn.qm);
 			}
 			// qm.addCol(c.getTableName(), c._columnName);
 		}
@@ -265,6 +268,35 @@ class SelectNode extends ResultSetNode {
 			n.exeQuery();
 		}
 		
+		for (Object o : resultColumns.v) {
+			ResultColumn t = (ResultColumn) o;
+			if (t._expression instanceof SubqueryNode) {
+				t._expression.exeQuery();
+			}
+			// qm.addCol(c.getTableName(), c._columnName);
+		}
+		
+		
+	}
+	
+	private void exeSubCol(ResultColumn t,RowColumn rc){
+		SubqueryNode sq=(SubqueryNode)t._expression;
+		SelectNode sn=(SelectNode)sq.resultSet;
+		List<ResultColumn> list = sn.resultColumns.v;
+		if (list.size() != 1) {
+			return  ;
+		}
+		ResultColumn c = list.get(0);
+		sn.fetchInit();
+		Object obj=null;
+		while(sn.fetch()){
+			if(sn.match()){
+				obj=sn.getColVal(c.getTableName(), c.getSourceColumnName());
+			}
+		}
+		 
+		String name =QueryUtil.getSubSelColName(t);
+		rc.add2Row("#", name, obj);
 	}
 	
 	RowColumn noGroupByOneRow=null;
@@ -275,6 +307,8 @@ class SelectNode extends ResultSetNode {
 			noGroupByNoAggr();
 		}
 	}
+	
+	
 	private void noGroupByNoAggr(){
 		RowColumn rc=new RowColumn();
 		for (Object o : resultColumns.v) {
@@ -285,6 +319,8 @@ class SelectNode extends ResultSetNode {
 				String cName = t.getSourceColumnName(); 
 				Object obj = qm.findFetchRow(alias).getCurrCol(cName);
 				rc.add2Row(alias, cName, obj);
+			}else if (t._expression instanceof SubqueryNode) {
+				exeSubCol(t,rc);
 			}
 		}
 		rowValue.add2Row(rc);
@@ -305,6 +341,8 @@ class SelectNode extends ResultSetNode {
 					String cName = t.getSourceColumnName(); 
 					Object obj = qm.findFetchRow(alias).getCurrCol(cName);
 					noGroupByOneRow.add2Row(alias, cName, obj);
+				}else if (t._expression instanceof SubqueryNode) {
+					exeSubCol(t,noGroupByOneRow);
 				}
 			}
 			rowValue.flushTheRow(noGroupByOneRow);
@@ -342,6 +380,12 @@ class SelectNode extends ResultSetNode {
 		   dealAggr(tmp,true);
 		}else{
 			dealAggr(tmp,false);
+		}
+		for (Object o : resultColumns.v) {
+			ResultColumn t = (ResultColumn) o;
+			if (t._expression instanceof SubqueryNode) {
+				exeSubCol(t,tmp);
+			}
 		}
 		rowValue.add2Row(tmp);
 		rowValue.flushRow();
@@ -472,6 +516,10 @@ class SelectNode extends ResultSetNode {
 		isFilter=true;
 	}
 	
+	public void reExeFilter(){
+		rowValue=new   FilterRowValue();
+		exeFilter();
+	}
 	
 
 	@Override

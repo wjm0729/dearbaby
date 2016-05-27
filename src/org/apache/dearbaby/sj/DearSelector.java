@@ -8,6 +8,7 @@ import org.apache.dearbaby.impl.sql.compile.ColumnReference;
 import org.apache.dearbaby.impl.sql.compile.ResultColumn;
 import org.apache.dearbaby.impl.sql.compile.ResultColumnList;
 import org.apache.dearbaby.impl.sql.compile.StatementNode;
+import org.apache.dearbaby.impl.sql.compile.SubqueryNode;
 import org.apache.dearbaby.query.JdbcExecutor;
 import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.util.QueryUtil;
@@ -53,10 +54,15 @@ public class DearSelector {
 						
 					} else if (t._expression instanceof AggregateNode) {
 						 
-						AggregateNode agg=(AggregateNode)t._expression;
 						 
-						ColumnReference c=(ColumnReference)agg.operand;
 						String name=QueryUtil.getAggrColName(t);
+						 
+						Object obj =qt.getColVal("#",name);
+						map.put("#"+"."+name, obj);
+					}else if (t._expression instanceof SubqueryNode) {
+						 
+						 
+						String name=QueryUtil.getSubSelColName(t);
 						 
 						Object obj =qt.getColVal("#",name);
 						map.put("#"+"."+name, obj);
