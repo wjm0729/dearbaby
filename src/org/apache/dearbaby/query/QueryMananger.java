@@ -57,15 +57,20 @@ public class QueryMananger {
 		}
 	}
 
-	public void addCol(String alias, String table, String clo) {
+	public void addCol(String alias, String table, String col) {
 
 		SinQuery found = foundQuery(alias, table);
-		found.columns.add(clo);
+		for(String c: found.columns){
+			if(c.equalsIgnoreCase(col)){
+				return;
+			}
+		}
+		found.columns.add(col);
 
 	}
 
-	public void addCol(String table, String clo) {
-		addCol(table, table, clo);
+	public void addCol(String table, String col) {
+		addCol(table, table, col);
 	}
 
 	public void addCond(String alias, String table, String cond) {

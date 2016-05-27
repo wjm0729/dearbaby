@@ -10,6 +10,7 @@ import org.apache.dearbaby.impl.sql.compile.ResultColumnList;
 import org.apache.dearbaby.impl.sql.compile.StatementNode;
 import org.apache.dearbaby.query.JdbcExecutor;
 import org.apache.dearbaby.query.QueryMananger;
+import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.ext.DearContext;
 import org.apache.derby.iapi.sql.compile.Parser;
 
@@ -55,10 +56,8 @@ public class DearSelector {
 						AggregateNode agg=(AggregateNode)t._expression;
 						 
 						ColumnReference c=(ColumnReference)agg.operand;
-						String name=t._underlyingName;
-						if(name==null){
-							name=c.getColumnName();
-						}
+						String name=QueryUtil.getAggrColName(t);
+						 
 						Object obj =qt.getColVal("#",name);
 						map.put("#"+"."+name, obj);
 					}
