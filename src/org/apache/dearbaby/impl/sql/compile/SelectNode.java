@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.dearbaby.query.RowColumn;
 import org.apache.dearbaby.util.ColCompare;
+import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Limits;
 import org.apache.derby.iapi.reference.SQLState;
@@ -402,10 +403,8 @@ class SelectNode extends ResultSetNode {
 		AggregateNode agg=(AggregateNode)t._expression;
 	 
 		ColumnReference c=(ColumnReference)agg.operand;
-		String name=t._underlyingName;
-		if(name==null){
-			name=c.getColumnName();
-		}
+		String name=QueryUtil.getAggrColName(t);
+		 
 		String alias = c._qualifiedTableName.tableName;
 		String cName = c.getColumnName(); 
 		Object obj = qm.findFetchRow(alias).getCurrCol(cName);
