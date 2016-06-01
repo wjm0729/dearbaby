@@ -61,10 +61,11 @@ public class DearSelector {
 						map.put("#"+"."+name, obj);
 					}else if (t._expression instanceof SubqueryNode) {
 						 
-						 
+						SubqueryNode subQ=(SubqueryNode)t._expression;
+						Object obj=subQ.getColVal();
 						String name=QueryUtil.getSubSelColName(t);
 						 
-						Object obj =qt.getColVal("#",name);
+						//Object obj =qt.getColVal("#",name);
 						map.put("#"+"."+name, obj);
 					}
 					

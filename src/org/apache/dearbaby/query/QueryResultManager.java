@@ -40,6 +40,7 @@ public class QueryResultManager extends QueryMananger {
 			sq.init();
 		}
 		first = true;
+		isEnd=false;
 	}
 
 	public Map getCurrRow(String alias) {
@@ -64,4 +65,15 @@ public class QueryResultManager extends QueryMananger {
 		return querys;
 	}
 
+	public void add(SinQuery q){
+		boolean found=false;
+		for(SinQuery sq:querys){
+			if(sq.alias.equalsIgnoreCase(q.alias)){
+				found=true;
+			}
+		}
+		if(found==false){
+			querys.add(q);
+		}
+	}
 }

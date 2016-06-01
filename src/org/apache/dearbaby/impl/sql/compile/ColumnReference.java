@@ -23,6 +23,7 @@ package org.apache.dearbaby.impl.sql.compile;
  
 import java.util.List;
 
+import org.apache.dearbaby.query.QueryMananger;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
@@ -204,7 +205,13 @@ public class ColumnReference extends ValueNode {
 
 	@Override
 	public void genQuery0() {
+		
 		qm.addCol(getTableName(), _columnName);
+	}
+	
+	public void genQueryCol(QueryMananger q,QueryTreeNode node) {
+		qm=q;
+		qm.addCol(getTableName(), _columnName );
 	}
 
 	/**

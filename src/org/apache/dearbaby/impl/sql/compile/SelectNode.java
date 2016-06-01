@@ -134,8 +134,11 @@ class SelectNode extends ResultSetNode {
 	boolean haveAggr=false;
 
 	List<QueryTreeNode> qryNodes = new ArrayList<QueryTreeNode>();
+	QueryTreeNode parentNode;
 	
-	
+	void putParentNode(QueryTreeNode q){
+		parentNode=q;
+	}
 
 	SelectNode(ResultColumnList selectList, FromList fromList,
 			ValueNode whereClause, GroupByList groupByList,
@@ -233,6 +236,7 @@ class SelectNode extends ResultSetNode {
 			ResultColumn t = (ResultColumn) o;
 			if (t._expression instanceof ColumnReference) {
 				ColumnReference c = (ColumnReference) t._expression;
+				qm.currNode=this;
 				c.genQuery(qm);
 			} else if (t._expression instanceof AggregateNode) {
 				haveAggr=true;
@@ -241,6 +245,7 @@ class SelectNode extends ResultSetNode {
 			}else if (t._expression instanceof SubqueryNode) {
 				SubqueryNode sn=(SubqueryNode)t._expression;
 				sn.genQuery(qm);
+				sn.putParentNode(this);
 				System.out.println("dddd"+sn.qm);
 			}
 			// qm.addCol(c.getTableName(), c._columnName);
@@ -254,8 +259,11 @@ class SelectNode extends ResultSetNode {
 			
 			};
 		}
-		if (whereClause != null)
+		if (whereClause != null){
+			qm.currNode=this;
 			whereClause.genQuery(qm);
+			
+		}
 
 	}
 
@@ -279,7 +287,11 @@ class SelectNode extends ResultSetNode {
 		
 	}
 	
-	private void exeSubCol(ResultColumn t,RowColumn rc){
+	
+	
+	
+	
+	public void exeSubCol(ResultColumn t,RowColumn rc){
 		SubqueryNode sq=(SubqueryNode)t._expression;
 		SelectNode sn=(SelectNode)sq.resultSet;
 		List<ResultColumn> list = sn.resultColumns.v;
@@ -289,6 +301,7 @@ class SelectNode extends ResultSetNode {
 		ResultColumn c = list.get(0);
 		sn.fetchInit();
 		Object obj=null;
+		sn.isFilter=false;
 		while(sn.fetch()){
 			if(sn.match()){
 				obj=sn.getColVal(c.getTableName(), c.getSourceColumnName());
@@ -302,9 +315,11 @@ class SelectNode extends ResultSetNode {
 	RowColumn noGroupByOneRow=null;
 	private void noGroupBy(){
 		if(haveAggr==true){
+			
 			noGroupByHaveAggr();
 		}else{
-			noGroupByNoAggr();
+			isFilter=false;
+			//noGroupByNoAggr();
 		}
 	}
 	
@@ -333,6 +348,7 @@ class SelectNode extends ResultSetNode {
 		if(noGroupByOneRow==null){
 			noGroupByOneRow=new RowColumn();
 			first=true;
+		
 			for (Object o : resultColumns.v) {
 				ResultColumn t = (ResultColumn) o;
 				if (t._expression instanceof ColumnReference) {
@@ -345,6 +361,7 @@ class SelectNode extends ResultSetNode {
 					exeSubCol(t,noGroupByOneRow);
 				}
 			}
+			
 			rowValue.flushTheRow(noGroupByOneRow);
 			//rowValue.flushRow();
 		}
@@ -504,6 +521,9 @@ class SelectNode extends ResultSetNode {
 	
 	@Override
 	public void exeFilter0(){
+		if(groupByList==null&&haveAggr==false){
+			return ;
+		} 
 		while(fetch()){
 			if(match()){
 				if(groupByList==null){
@@ -513,7 +533,7 @@ class SelectNode extends ResultSetNode {
 				}
 			}
 		}
-		isFilter=true;
+		
 	}
 	
 	public void reExeFilter(){
@@ -557,6 +577,14 @@ class SelectNode extends ResultSetNode {
 	}
 
 	boolean first = true;
+	
+	@Override
+	public void fetchInit() {
+		
+		super.fetchInit();
+		first = true;
+	
+	}
 
 	private boolean halfFetch() {
 		if (qryNodes.size() == 0) {

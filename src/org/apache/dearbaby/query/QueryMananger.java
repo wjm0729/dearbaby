@@ -9,6 +9,7 @@ public class QueryMananger {
 
 	public ArrayList<SinQuery> querys = new ArrayList<SinQuery>();
 	public ArrayList<SinQuery> fetchRow = new ArrayList<SinQuery>();
+	public QueryTreeNode currNode;
 	public IExecutor executor;
 	public SinQuery foundQuery(String alias, String table) {
 		SinQuery found = null;
@@ -57,20 +58,22 @@ public class QueryMananger {
 		}
 	}
 
-	public void addCol(String alias, String table, String col) {
+	public void addCol(String alias, String table, String col, QueryTreeNode node) {
 
 		SinQuery found = foundQuery(alias, table);
+		//node.qs.add(found);
 		for(String c: found.columns){
 			if(c.equalsIgnoreCase(col)){
 				return;
 			}
 		}
 		found.columns.add(col);
-
+		
+		
 	}
 
-	public void addCol(String table, String col) {
-		addCol(table, table, col);
+	public void addCol(String table, String col ) {
+		addCol(table, table, col,currNode);
 	}
 
 	public void addCond(String alias, String table, String cond) {
@@ -99,7 +102,7 @@ public class QueryMananger {
 	public void addNode(String alias, String table, QueryTreeNode node) {
 		SinQuery found = foundQuery(alias, table);
 		found.node = node;
-		node.qs.querys.add(found); 
+		node.qs.add(found); 
 	}
 
 	public void addNode(String table, QueryTreeNode node) {

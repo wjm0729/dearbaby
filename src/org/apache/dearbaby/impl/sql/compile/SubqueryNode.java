@@ -21,7 +21,11 @@
 
 package org.apache.dearbaby.impl.sql.compile;
 
+import java.util.List;
+
+import org.apache.dearbaby.query.RowColumn;
 import org.apache.dearbaby.util.ColCompare;
+import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.sql.compile.Visitor;
@@ -78,6 +82,7 @@ public class SubqueryNode extends ValueNode {
 	/* Type of this subquery */
 	int subqueryType;
 
+	QueryTreeNode parentNode;
 	/*
 	 * Whether or not this subquery is immediately under a top level AndNode.
 	 * (Important for subquery flattening.)
@@ -714,6 +719,30 @@ public class SubqueryNode extends ValueNode {
 		}
 
 		return topNode;
+	}
+	
+	void putParentNode(QueryTreeNode q){
+		parentNode=q;
+	}
+	
+	public Object getColVal( ){
+		SubqueryNode sq=this;
+		SelectNode sn=(SelectNode)sq.resultSet;
+		List<ResultColumn> list = sn.resultColumns.v;
+		if (list.size() != 1) {
+			return  null;
+		}
+		ResultColumn c = list.get(0);
+		sn.fetchInit();
+		Object obj=null;
+		sn.isFilter=false;
+		while(sn.fetch()){
+			if(sn.match()){
+				obj=sn.getColVal(c.getTableName(), c.getSourceColumnName());
+			}
+		}
+		 
+		 return obj;
 	}
 
 	@Override

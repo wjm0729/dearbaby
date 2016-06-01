@@ -310,6 +310,9 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 		}
 		
 		int r = ColCompare.compareObject(lo, ro);
+		if(r==0){
+			System.out.println("ok");
+		}
 		boolean br = ColCompare.matchOpr(r, operator);
 		
 		return br;

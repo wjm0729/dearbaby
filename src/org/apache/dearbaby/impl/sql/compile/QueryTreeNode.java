@@ -223,13 +223,31 @@ public abstract class QueryTreeNode implements Visitable {
 	}
 
 	public void fetchInit() {
-		if(isFilter==false){
+		
 			qs.init();
-		}else{
+		
 			rowValue.again();
-		}
+		
 	}
 
+	
+
+	public void initQuers() {
+		
+			qs.init();
+			for(SinQuery sq:qs.querys){
+				for (SinQuery q : qm.fetchRow) {
+					if(q.alias.equalsIgnoreCase(sq.alias)){
+						qm.fetchRow.remove(q);
+						break;
+					}
+				}
+			}
+		 
+		
+	}
+	
+	
 	public void fetchEnd() {
 		qm.initFetch();
 	}
@@ -247,11 +265,22 @@ public abstract class QueryTreeNode implements Visitable {
 		
 	}
 	
+	public SinQuery findSinQueryFromQs(String alias){
+		 for(SinQuery s:qs.querys){
+			 if(s.alias.equalsIgnoreCase(alias)){
+				 return  s;
+			 }
+		 }
+		 return null;
+	}
+	
+	
 	public Object getColVal(String alias,String colName){
 		if(isFilter==true){
 			return rowValue.getCurrVal(alias, colName);
 		}else{
-			return qm.findFetchRow(alias).getCurrCol(colName);
+			SinQuery sq= qm.findFetchRow(alias);
+			return sq.getCurrCol(colName);
 		}
 	}
 	public Object getVal() {
