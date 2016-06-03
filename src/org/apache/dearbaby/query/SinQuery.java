@@ -53,7 +53,8 @@ public class SinQuery {
 	}
 
 	public Object getCurrCol(String name) {
-		return getCurrRow().get(name);
+		Map map= getCurrRow();
+		return map.get(name);
 	}
 
 	public Map nextRow() {

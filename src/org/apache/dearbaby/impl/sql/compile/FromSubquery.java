@@ -21,8 +21,13 @@
 
 package	org.apache.dearbaby.impl.sql.compile;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.sql.compile.Visitor;
@@ -136,6 +141,64 @@ class FromSubquery extends FromTable
 		return subquery;
 	}
 
+    
+    @Override
+	public void genQuery0() {
+		 
+    	subquery.genQuery(qm);
+	}
+
+	@Override
+	public void exeQuery0() {
+		 
+		subquery.exeQuery();
+	}
+	
+	public ArrayList<Map> getRest(){
+		SelectNode seleQuery=(SelectNode)subquery;
+		ArrayList<Map> list=new ArrayList<Map>();
+		while ( subquery.fetch()) {
+			 
+			if (subquery.match()) {
+				Map map=new HashMap();
+				 
+				for (Object o : subquery.resultColumns.v) {
+					ResultColumn t = (ResultColumn) o;
+					if (t._expression instanceof ColumnReference) {
+						ColumnReference c=(ColumnReference)t._expression;
+						String alias = c._qualifiedTableName.tableName;
+						String cName = t.getSourceColumnName(); 
+						Object obj  =getColVal(alias,cName);
+						map.put(cName, obj);
+						
+					} else if (t._expression instanceof AggregateNode) {
+						 
+						 
+						String name=QueryUtil.getAggrColName(t);
+						 
+						Object obj  =getColVal("#",name);
+						map.put( name, obj);
+					}else if (t._expression instanceof SubqueryNode) {
+						 
+						SubqueryNode subQ=(SubqueryNode)t._expression;
+						Object obj=subQ.getColVal();
+						String name=QueryUtil.getSubSelColName(t);
+						 
+						//Object obj =qt.getColVal("#",name);
+						map.put( name, obj);
+					}
+					
+				}
+				 
+				list.add(map); 
+			}
+
+			 fetchEnd();
+ 
+		}
+		return list;
+	}
+    
 	/** 
 	 * Determine whether or not the specified name is an exposed name in
 	 * the current query block.

@@ -60,8 +60,8 @@ import org.apache.derby.shared.common.sanity.SanityManager;
  */
 abstract class FromTable extends ResultSetNode {
 	Properties tableProperties;
-	String correlationName;
-	TableName corrTableName;
+	public String correlationName;
+	 TableName corrTableName;
 	int tableNumber;
 	/* (Query block) level is 0-based. */
 	/*

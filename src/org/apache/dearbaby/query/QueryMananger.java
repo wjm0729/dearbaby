@@ -41,6 +41,26 @@ public class QueryMananger {
 		}
 		return found;
 	}
+	
+	public SinQuery addOrReplaceQs(SinQuery sq) {
+		SinQuery found = null;
+		for (SinQuery q : querys) {
+			if (q.alias != null && q.alias.equals(sq.alias)) {
+				querys.remove(q);
+				break;
+
+			}
+		}
+		for (SinQuery q : fetchRow) {
+			if (q.alias != null && q.alias.equals(sq.alias)) {
+				fetchRow.remove(q);
+				break;
+
+			}
+		}
+		querys.add(sq);
+		return found;
+	}
 
 	public SinQuery findFetchRow(String alias) {
 		SinQuery found = null;

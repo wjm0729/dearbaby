@@ -22,10 +22,13 @@
 package org.apache.dearbaby.impl.sql.compile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.RowColumn;
+import org.apache.dearbaby.query.SinQuery;
 import org.apache.dearbaby.util.ColCompare;
 import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
@@ -229,6 +232,10 @@ class SelectNode extends ResultSetNode {
 				HalfOuterJoinNode t = (HalfOuterJoinNode) o;
 				qryNodes.add(t);
 				t.genQuery(qm);
+			}else if (o instanceof FromSubquery ) {
+
+				FromSubquery t = (FromSubquery) o;
+				t.genQuery(qm);
 			}
 		}
 
@@ -284,8 +291,24 @@ class SelectNode extends ResultSetNode {
 			// qm.addCol(c.getTableName(), c._columnName);
 		}
 		
+		for (Object o : fromList.v) {
+			 if (o instanceof FromSubquery) {
+				 FromSubquery t = (FromSubquery) o;
+				t.exeQuery();
+				ArrayList<Map> list =t.getRest();
+				SinQuery sq=new SinQuery();
+				sq.alias=t.correlationName;
+				sq.tableName="";
+				sq.results=list;
+				qs.querys.add(sq);
+				qm.addOrReplaceQs(sq);
+			}
+		}
+		
+		
 		
 	}
+	
 	
 	
 	
