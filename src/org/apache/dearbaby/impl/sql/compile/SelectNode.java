@@ -238,7 +238,7 @@ class SelectNode extends ResultSetNode {
 				t.genQuery(qm);
 			}
 		}
-
+/* 老的实现，需优化，在优化确定没有问题前，保留旧的实现
 		for (Object o : resultColumns.v) {
 			ResultColumn t = (ResultColumn) o;
 			if (t._expression instanceof ColumnReference) {
@@ -253,11 +253,19 @@ class SelectNode extends ResultSetNode {
 				SubqueryNode sn=(SubqueryNode)t._expression;
 				sn.genQuery(qm);
 				sn.putParentNode(this);
-				System.out.println("dddd"+sn.qm);
+				 
 			}
 			// qm.addCol(c.getTableName(), c._columnName);
 		}
+*/		
 		
+		for (Object o : resultColumns.v) {
+			ResultColumn t = (ResultColumn) o;
+			if (t._expression instanceof AggregateNode) {
+				haveAggr=true;
+			}
+			t._expression.genQuery(qm);
+		}
 		/*group by*/
 		if(groupByList!=null){
 			for(GroupByColumn col: groupByList.v){
@@ -293,7 +301,7 @@ class SelectNode extends ResultSetNode {
 		
 		for (Object o : fromList.v) {
 			 if (o instanceof FromSubquery) {
-				 FromSubquery t = (FromSubquery) o;
+				FromSubquery t = (FromSubquery) o;
 				t.exeQuery();
 				ArrayList<Map> list =t.getRest();
 				SinQuery sq=new SinQuery();

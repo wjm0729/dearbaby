@@ -23,6 +23,7 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.dearbaby.query.SinQuery;
@@ -129,6 +130,19 @@ class HalfOuterJoinNode extends JoinNode {
 		}
 	}
 
+	private void _genQuery(ResultSetNode result){
+		 if (result instanceof FromSubquery ) {
+
+			FromSubquery t = (FromSubquery)result;
+			t.genQuery(qm);
+		}else if(result instanceof FromBaseTable ){
+			FromBaseTable fromTable = (FromBaseTable) result;
+			qm.addNode(fromTable.correlationName,
+					fromTable.origTableName.tableName, this);
+		} 
+	}
+	
+	/*
 	@Override
 	public void genQuery0() {
 		FromTable leftFromTable = (FromTable) leftResultSet;
@@ -142,7 +156,39 @@ class HalfOuterJoinNode extends JoinNode {
 			joinClause.genQuery(qm);
 
 	}
+*/
+	@Override
+	public void genQuery0() {
+		_genQuery( leftResultSet);
+		_genQuery( rightResultSet);
+		 
 
+		if (joinClause != null)
+			joinClause.genQuery(qm);
+
+	}
+	
+	private void _exeQuery(ResultSetNode result){
+		 if (result instanceof FromSubquery ){
+			    FromSubquery t = (FromSubquery) result;
+				t.exeQuery();
+				ArrayList<Map> list =t.getRest();
+				SinQuery sq=new SinQuery();
+				sq.alias=t.correlationName;
+				sq.tableName="";
+				sq.results=list;
+				qs.querys.add(sq);
+				qm.addOrReplaceQs(sq);
+		 }
+	}
+	
+	@Override
+	public void exeQuery0(){
+		_exeQuery(leftResultSet);
+		_exeQuery(rightResultSet);
+	}
+	
+	
 	boolean isMatch = false;
 	int i = 0;
 	boolean first = true;
