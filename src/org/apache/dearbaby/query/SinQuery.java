@@ -12,6 +12,8 @@ public class SinQuery {
 	public String alias;
 	public ArrayList<String> columns = new ArrayList<String>();
 	public ArrayList<Map> results = new ArrayList<Map>();
+	
+	public boolean simpleSelect=true;
 
 	public String andCondition = "1=1 ";
 
