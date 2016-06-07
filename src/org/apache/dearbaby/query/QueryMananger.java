@@ -11,6 +11,9 @@ public class QueryMananger {
 	public ArrayList<SinQuery> fetchRow = new ArrayList<SinQuery>();
 	public QueryTreeNode currNode;
 	public IExecutor executor;
+	public String sql="";
+	public SinQuery currWhereQuery;
+	
 	public SinQuery foundQuery(String alias, String table) {
 		SinQuery found = null;
 		for (SinQuery q : querys) {
@@ -98,7 +101,7 @@ public class QueryMananger {
 
 	public void addCond(String alias, String table, String cond) {
 		SinQuery found = foundQuery(alias, table);
-		if(!found.isOrCond==false){
+		if(found.isOrCond==false){
 			found.andCondition = found.andCondition + " and " + cond;
 		}
 	}
@@ -111,7 +114,7 @@ public class QueryMananger {
 	public void orCond(String alias, String table ) {
 		SinQuery found = foundQuery(alias, table);
 		found.isOrCond=true;
-		found.andCondition = " 1=1 ";
+		found.andCondition = " 2 =2 ";
 		 
 	}
 
@@ -119,14 +122,15 @@ public class QueryMananger {
 		orCond(table, table );
 	}
 
-	public void addNode(String alias, String table, QueryTreeNode node) {
+	public SinQuery addNode(String alias, String table, QueryTreeNode node) {
 		SinQuery found = foundQuery(alias, table);
 		found.node = node;
-		node.qs.add(found); 
+		node.qs.add(found);
+		return found;
 	}
 
-	public void addNode(String table, QueryTreeNode node) {
-		addNode(table, table, node);
+	public SinQuery addNode(String table, QueryTreeNode node) {
+		return addNode(table, table, node);
 	}
 
 	public void addFetch() {

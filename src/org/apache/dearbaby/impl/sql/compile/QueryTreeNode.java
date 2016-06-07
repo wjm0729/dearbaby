@@ -188,7 +188,7 @@ public abstract class QueryTreeNode implements Visitable {
 	public void exeQuery() {
 
 		for (SinQuery q : qs.querys) {
-			q.genSql();
+			q.genSql(qm);
 			q.exeSelect();
 			
 		}

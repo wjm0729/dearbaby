@@ -26,6 +26,7 @@ public class DearSelector {
 	
 			QueryMananger querys = new QueryMananger();
 			querys.executor=new JdbcExecutor();
+			querys.sql=sql;
 			qt.genQuery(querys); 
 			
 			qt.exeQuery();

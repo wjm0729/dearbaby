@@ -223,20 +223,29 @@ class SelectNode extends ResultSetNode {
 
 	@Override
 	public void genQuery0() {
+		SinQuery tmp=null;
+		int fromCnt=0;
 		for (Object o : fromList.v) {
 			if (o instanceof FromBaseTable) {
+				fromCnt++;
 				FromBaseTable t = (FromBaseTable) o;
-				qm.addNode(t.correlationName, t.tableName.tableName, this);
+				tmp=qm.addNode(t.correlationName, t.tableName.tableName, this);
 			} else if (o instanceof HalfOuterJoinNode) {
-
+				fromCnt=10;
 				HalfOuterJoinNode t = (HalfOuterJoinNode) o;
 				qryNodes.add(t);
 				t.genQuery(qm);
 			}else if (o instanceof FromSubquery ) {
-
+				fromCnt=10;
 				FromSubquery t = (FromSubquery) o;
 				t.genQuery(qm);
 			}
+		}
+		/*not simpleQery*/
+		if(fromCnt>1){
+			tmp=null;
+		}else{
+			tmp.simpleSelect=true;
 		}
 /* 老的实现，需优化，在优化确定没有问题前，保留旧的实现
 		for (Object o : resultColumns.v) {
@@ -274,12 +283,17 @@ class SelectNode extends ResultSetNode {
 			
 			};
 		}
+	
 		if (whereClause != null){
 			qm.currNode=this;
+			qm.currWhereQuery=tmp;
+			if(tmp!=null){
+				qm.currWhereQuery.whereClause=whereClause;
+			}
 			whereClause.genQuery(qm);
-			
+			whereClause.genCondition();
 		}
-
+		qm.currWhereQuery=null;
 	}
 
 	@Override

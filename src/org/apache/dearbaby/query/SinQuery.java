@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
+import org.apache.dearbaby.impl.sql.compile.ValueNode;
 
 public class SinQuery {
 
@@ -13,7 +14,8 @@ public class SinQuery {
 	public ArrayList<String> columns = new ArrayList<String>();
 	public ArrayList<Map> results = new ArrayList<Map>();
 	
-	public boolean simpleSelect=true;
+	/*默认不是简单查询 */
+	public boolean simpleSelect=false;
 
 	public String andCondition = "1=1 ";
 
@@ -23,6 +25,8 @@ public class SinQuery {
 	
 	public QueryTreeNode node;
 	
+	public ValueNode whereClause;
+	
 	
 	public boolean isOrCond=false;
 
@@ -30,19 +34,24 @@ public class SinQuery {
 
 	private boolean endOut = false;
 
-	public void genSql() {
+	public void genSql(QueryMananger q) {
 		String s = "select ";
 		for (int i = 0; i < columns.size(); i++) {
-			s = s + columns.get(i) + " ";
+			s = s +alias+"."+ columns.get(i) + " ";
 			if (i < columns.size() - 1) {
 				s = s + ", ";
 			} else {
 				s = s + " ";
 			}
 		}
-		s = s + " from " + tableName + " where " + andCondition;
+		s = s + " from " + tableName+" "+alias +" ";
+		if(simpleSelect==true){
+			s=s+ " where "+q.sql.substring( whereClause.getBeginOffset(),whereClause.getEndOffset()+1);
+		}else{
+			s=s+ " where " + andCondition;
+		}
 		sql = s;
-		System.out.println("sql---" + sql);
+		System.out.println("sql---:  " + sql);
 	}
 
 	public Map getCurrRow() {
@@ -98,5 +107,7 @@ public class SinQuery {
 	public void exeGroupBy(QueryTreeNode qn){
 		
 	}
+	
+	 
 
 }

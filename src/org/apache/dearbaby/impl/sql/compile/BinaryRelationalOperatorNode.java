@@ -251,14 +251,21 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 	public void genQuery0() {
 		leftOperand.genQuery(qm);
 		rightOperand.genQuery(qm);
+		//genCondition();
 	}
 
+	private boolean hasGenCond=false;
 	@Override
 	public void genCondition() {
+		if(hasGenCond==true){
+			return;
+		}
+		hasGenCond=true;
 		if (leftOperand instanceof ConstantNode
 				&& rightOperand instanceof ColumnReference) {
 			ConstantNode lc = (ConstantNode) leftOperand;
 			ColumnReference rc = (ColumnReference) rightOperand;
+		
 			Object obj = lc.getVal();
 			String v = "";
 			if (ColCompare.isNum(obj.getClass().getName()) == 1) {
@@ -268,6 +275,11 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			}
 			qm.addCond(rc.getTableName(), v + " " + operator + " "
 					+ rc._columnName);
+			if(qm.currWhereQuery!=null){
+				if(!rc.getTableName().equalsIgnoreCase(qm.currWhereQuery.alias)){
+					qm.currWhereQuery.simpleSelect=false;
+				}
+			}
 		} else if (rightOperand instanceof ConstantNode
 				&& leftOperand instanceof ColumnReference) {
 			ColumnReference lc = (ColumnReference) leftOperand;
@@ -279,9 +291,17 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			} else {
 				v = "'" + obj.toString() + "'";
 			}
-
+			if(qm.currWhereQuery!=null){
+				if(!lc.getTableName().equalsIgnoreCase(qm.currWhereQuery.alias)){
+					qm.currWhereQuery.simpleSelect=false;
+				}
+			}
 			qm.addCond(lc.getTableName(), lc._columnName + " " + operator + " "
 					+ v);
+		}else{
+			if(qm.currWhereQuery!=null){
+				qm.currWhereQuery.simpleSelect=false;
+			}
 		}
 	}
 	
