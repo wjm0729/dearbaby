@@ -23,19 +23,24 @@ public class DearTest {
 		sql="SELECT a.doctorId, sum(a.flag)    FROM WorkInforParameter  a   WHERE  a.DoctorId in (select b.DoctorId from doctorinforparameter b)   ";
 		sql="SELECT a.doctorId,  (select b.doctorName From doctorinforparameter b Where a.doctorId=b.doctorId) as name   FROM WorkInforParameter  a   ";
 		sql="SELECT a.doctorId   , b.doctorName  FROM WorkInforParameter  a  , (select  c.doctorName , c.doctorId From doctorinforparameter c where c.doctorId='222' ) as b  where    a.doctorId=b.doctorId";
-		sql = "SELECT a.workid,c.doctorName FROM WorkInforParameter a  LEFT JOIN (SELECT d.doctorid,d.doctorName FROM  DoctorInforParameter d  WHERE d.id>120 ) c ON a.doctorid=c.doctorid      ";
+		sql = "SELECT a.workid,c.doctorName as Name FROM WorkInforParameter a  LEFT JOIN (SELECT d.doctorid,d.doctorName FROM  DoctorInforParameter d  WHERE d.id>120 ) c ON a.doctorid=c.doctorid      ";
 	//	sql = " SELECT d.doctorid,d.doctorName FROM  DoctorInforParameter d  WHERE d.id>250  AND d.id<70  ";
 	
 		
+		sql="SELECT a.doctorId, sum(a.flag) as flagSum   FROM WorkInforParameter  a   WHERE  a.DoctorId in (select b.DoctorId from doctorinforparameter b)   ";
+		
+		
 		//sql="SELECT a.doctorName from DoctorInforParameter  a group by a.doctorid";
 		DearSelector selector =new DearSelector();  
-		 selector.bootstrap(sql);
+		 selector.query(sql);
 		 while(true){
-			 Map map=selector.fetch();
+			 ResultMap map=selector.fetch();
 			 if(map==null){
 				 break;
 			 }
-			 System.out.println("map....  "+map);
+			 
+	 	// System.out.println("map....  "+map.getObject("c", "doctorName"));
+			 System.out.println("map....  "+map.getAggrObject( "flagSum"));
 		 }
 	}
 

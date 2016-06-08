@@ -96,8 +96,16 @@ public abstract class QueryTreeNode implements Visitable {
 
 	public QueryMananger qm;
 	public QueryResultManager qs = new QueryResultManager();
-	public boolean isFilter =false;
+	private boolean isFilter =false;
 	public FilterRowValue rowValue=new FilterRowValue();
+	
+	public void setIsFilter(boolean is){
+		isFilter=is;
+	}
+	
+	public boolean getIsFilter( ){
+		return isFilter;
+	}
 	
 	/**
 	 * In Derby SQL Standard Authorization, views, triggers and constraints

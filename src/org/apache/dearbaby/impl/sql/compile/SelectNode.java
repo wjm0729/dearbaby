@@ -284,9 +284,10 @@ class SelectNode extends ResultSetNode {
 			};
 		}
 	
+		
 		if (whereClause != null){
-			qm.currNode=this;
 			qm.currWhereQuery=tmp;
+			qm.currNode=this;
 			if(tmp!=null){
 				qm.currWhereQuery.whereClause=whereClause;
 			}
@@ -346,7 +347,7 @@ class SelectNode extends ResultSetNode {
 		ResultColumn c = list.get(0);
 		sn.fetchInit();
 		Object obj=null;
-		sn.isFilter=false;
+		sn.setIsFilter(false);
 		while(sn.fetch()){
 			if(sn.match()){
 				obj=sn.getColVal(c.getTableName(), c.getSourceColumnName());
@@ -362,8 +363,9 @@ class SelectNode extends ResultSetNode {
 		if(haveAggr==true){
 			
 			noGroupByHaveAggr();
+			
 		}else{
-			isFilter=false;
+			//setIsFilter(false) ;
 			//noGroupByNoAggr();
 		}
 	}
@@ -569,6 +571,10 @@ class SelectNode extends ResultSetNode {
 		if(groupByList==null&&haveAggr==false){
 			return ;
 		} 
+		if(haveAggr==false){
+			return;
+		}
+		
 		while(fetch()){
 			if(match()){
 				if(groupByList==null){
@@ -578,6 +584,7 @@ class SelectNode extends ResultSetNode {
 				}
 			}
 		}
+		setIsFilter(true);
 		
 	}
 	
@@ -597,7 +604,7 @@ class SelectNode extends ResultSetNode {
 
 	@Override
 	public boolean fetch() {
-		if(isFilter==true){
+		if(getIsFilter()==true){
 			return rowValue.next();
 		}
 		return _fetch();

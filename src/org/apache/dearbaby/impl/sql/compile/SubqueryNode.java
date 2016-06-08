@@ -735,7 +735,7 @@ public class SubqueryNode extends ValueNode {
 		ResultColumn c = list.get(0);
 		sn.fetchInit();
 		Object obj=null;
-		sn.isFilter=false;
+		setIsFilter(false);
 		while(sn.fetch()){
 			if(sn.match()){
 				obj=sn.getColVal(c.getTableName(), c.getSourceColumnName());
@@ -750,7 +750,12 @@ public class SubqueryNode extends ValueNode {
 		if (leftOperand != null) {
 			leftOperand.genQuery(qm);
 		}
+		/*包含子查询，不能作为简单查询*/
+		if(qm.currWhereQuery!=null){
+			qm.currWhereQuery.simpleSelect=false;
+		}
 		resultSet.genQuery(qm);
+		
 	}
 
 	@Override

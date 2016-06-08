@@ -18,7 +18,7 @@ import org.apache.derby.iapi.sql.compile.Parser;
 public class DearSelector {
 	private StatementNode qt;
    
-	public void bootstrap(String sql) {
+	public void query(String sql) {
 		try{
 			
 			Parser ps =  DearContext.getParser();
@@ -35,14 +35,14 @@ public class DearSelector {
 		}
 	}
 	
-	public  Map  fetch(){
+	public  ResultMap  fetch(){
 		int i=0;
 		int j=0;
 	
 		while (qt.fetch()) {
 			 
 			if (qt.match()) {
-				Map map=new HashMap();
+				HashMap map=new HashMap();
 				ResultColumnList resultColumns= qt.getCols(); 
 				for (Object o : resultColumns.v) {
 					ResultColumn t = (ResultColumn) o;
@@ -75,9 +75,9 @@ public class DearSelector {
 						+ i
 						+ " ,"
 						+ map);
-				
+				ResultMap m=new ResultMap(map);
 				i++;
-				return map;
+				return m;
 			}
 
 			qt.fetchEnd();

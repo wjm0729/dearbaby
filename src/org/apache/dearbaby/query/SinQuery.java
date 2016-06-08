@@ -46,7 +46,9 @@ public class SinQuery {
 		}
 		s = s + " from " + tableName+" "+alias +" ";
 		if(simpleSelect==true){
-			s=s+ " where "+q.sql.substring( whereClause.getBeginOffset(),whereClause.getEndOffset()+1);
+			if(whereClause!=null){
+				s=s+ " where "+q.sql.substring( whereClause.getBeginOffset(),whereClause.getEndOffset()+1);
+			}
 		}else{
 			s=s+ " where " + andCondition;
 		}
