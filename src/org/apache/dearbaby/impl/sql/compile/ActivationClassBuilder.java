@@ -30,40 +30,10 @@ import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.sql.compile.CodeGeneration;
 import org.apache.derby.iapi.sql.compile.CompilerContext;
 
-/**
- * ActivationClassBuilder
- * provides an interface to satisfy generation's
- * common tasks in building an activation class,
- * as well as a repository for the JavaFactory used
- * to generate the basic language constructs for the methods in the class.
- * Common tasks include the setting of a static field for each
- * expression function that gets added, the creation
- * of the execute method that gets expanded as the query tree
- * is walked, setting the superclass.
- * <p>
- * An activation class is defined for each statement. It has
- * the following basic layout: TBD
- * See the document
- * \\Jeeves\Unversioned Repository 1\Internal Technical Documents\Other\GenAndExec.doc
- * for details.
- * <p>
- * We could also verify methods as they are
- * added, to have 0 parameters, ...
- *
- */
+ 
 class ActivationClassBuilder	extends	ExpressionClassBuilder
 {
-	///////////////////////////////////////////////////////////////////////
-	//
-	// CONSTANTS
-	//
-	///////////////////////////////////////////////////////////////////////
-
-	///////////////////////////////////////////////////////////////////////
-	//
-	// STATE
-	//
-	///////////////////////////////////////////////////////////////////////
+ 
 
 	private LocalField	targetResultSetField;
 	private LocalField  cursorResultSetField;
@@ -71,42 +41,13 @@ class ActivationClassBuilder	extends	ExpressionClassBuilder
 	private MethodBuilder closeActivationMethod;
 
 
-	///////////////////////////////////////////////////////////////////////
-	//
-	// CONSTRUCTOR
-	//
-	///////////////////////////////////////////////////////////////////////
-
-	/**
-	 * By the time this is done, it has constructed the following class:
-	 * <pre>
-	 *    final public class #className extends #superClass {
-	 *		// public void reset() { return; }
-	 *		protected ResultSet doExecute() throws StandardException {
-	 *			// statements must be added here
-	 *		}
-     *      public #className() { super(); }
-	 *    }
-	 * </pre>
-	 *
-	 * @exception StandardException thrown on failure
-	 */
+ 
 	ActivationClassBuilder (String superClass, CompilerContext cc) throws StandardException
 	{
 		super( superClass, (String) null, cc );
 	}
 
-	///////////////////////////////////////////////////////////////////////
-	//
-	// ACCESSORS
-	//
-	///////////////////////////////////////////////////////////////////////
-
-	/**
-	  *	Get the package name that this generated class lives in
-	  *
-	  *	@return	package name
-	  */
+	 
     public	String	getPackageName()
 	{	return	CodeGeneration.GENERATED_PACKAGE_PREFIX; }
 

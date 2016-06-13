@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
 import org.apache.dearbaby.impl.sql.compile.ValueNode;
+import org.apache.dearbaby.task.QueryTask;
+import org.apache.dearbaby.task.TaskPoolManager;
 
 public class SinQuery {
 
@@ -53,6 +55,7 @@ public class SinQuery {
 			s=s+ " where " + andCondition;
 		}
 		sql = s;
+		addExeTask(q);
 		System.out.println("sql---:  " + sql);
 	}
 
@@ -93,9 +96,13 @@ public class SinQuery {
 		return endOut;
 	}
 
+	public void addExeTask(QueryMananger qm){
+		QueryTask qtask=new QueryTask(this,qm);
+		TaskPoolManager.putTask(qtask);
+	}
+	
 	public void exeSelect() {
 		try {
-			
 			if (sql == null || sql.length() == 0) {
 				return;
 			}

@@ -77,12 +77,7 @@ public class CollectNodesVisitor<T extends Visitable> implements Visitor
 	{
 		return false;
 	}
-	////////////////////////////////////////////////
-	//
-	// VISITOR INTERFACE
-	//
-	////////////////////////////////////////////////
-
+	 
 	/**
 	 * If we have found the target node, we are done.
 	 *

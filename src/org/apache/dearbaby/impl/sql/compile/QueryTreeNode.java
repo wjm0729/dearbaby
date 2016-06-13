@@ -31,6 +31,7 @@ import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.query.QueryResultManager;
 import org.apache.dearbaby.query.SinQuery;
+import org.apache.dearbaby.task.QueryTask;
 import org.apache.derby.catalog.AliasInfo;
 import org.apache.derby.catalog.TypeDescriptor;
 import org.apache.derby.catalog.types.RowMultiSetImpl;
@@ -97,6 +98,9 @@ public abstract class QueryTreeNode implements Visitable {
 	public QueryMananger qm;
 	public QueryResultManager qs = new QueryResultManager();
 	private boolean isFilter =false;
+	/*
+	 * 如果为集合处理后，数据将会存放在这里
+	 * */
 	public FilterRowValue rowValue=new FilterRowValue();
 	
 	public void setIsFilter(boolean is){
@@ -198,6 +202,7 @@ public abstract class QueryTreeNode implements Visitable {
 		for (SinQuery q : qs.querys) {
 			q.genSql(qm);
 			q.exeSelect();
+		
 			
 		}
 		
@@ -230,18 +235,14 @@ public abstract class QueryTreeNode implements Visitable {
 		return r;
 	}
 
-	public void fetchInit() {
-		
+	public void fetchInit() {	
 			qs.init();
-		
 			rowValue.again();
-		
 	}
 
 	
 
 	public void initQuers() {
-		
 			qs.init();
 			for(SinQuery sq:qs.querys){
 				for (SinQuery q : qm.fetchRow) {
@@ -251,8 +252,6 @@ public abstract class QueryTreeNode implements Visitable {
 					}
 				}
 			}
-		 
-		
 	}
 	
 	
@@ -261,7 +260,6 @@ public abstract class QueryTreeNode implements Visitable {
 	}
 
 	public boolean match() {
-
 		return true;
 	}
 
@@ -291,6 +289,10 @@ public abstract class QueryTreeNode implements Visitable {
 			return sq.getCurrCol(colName);
 		}
 	}
+	
+	/*
+	 * 获取字段的值 
+	 * */
 	public Object getVal() {
 		Object obj = null;
 		try {

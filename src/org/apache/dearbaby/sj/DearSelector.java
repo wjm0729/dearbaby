@@ -24,11 +24,11 @@ public class DearSelector {
 			Parser ps =  DearContext.getParser();
 			qt = (StatementNode) ps.parseStatement(sql);
 	
-			QueryMananger querys = new QueryMananger();
-			querys.executor=new JdbcExecutor();
-			querys.sql=sql;
-			qt.genQuery(querys); 
-			
+			QueryMananger qm = new QueryMananger();
+			qm.executor=new JdbcExecutor();
+			qm.sql=sql;
+			qt.genQuery(qm); 
+			qm.readyMutlTask();
 			qt.exeQuery();
 		}catch(Exception e){
 			e.printStackTrace();
