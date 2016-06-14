@@ -56,6 +56,7 @@ public class SinQuery {
 		}
 		sql = s;
 		addExeTask(q);
+		//exeSelect();
 		System.out.println("sql---:  " + sql);
 	}
 
@@ -117,6 +118,35 @@ public class SinQuery {
 		
 	}
 	
-	 
+	public SinQuery clone(){
+		SinQuery cloneObj=new SinQuery();
+		cloneObj.tableName=this.tableName;
+		cloneObj.alias=this.alias;
+		cloneObj.columns =this.columns;
+		cloneObj.results = this.results;
+		
+		/*默认不是简单查询 */
+		cloneObj.simpleSelect=this.simpleSelect;
+
+		cloneObj.andCondition = this.andCondition;
+
+		cloneObj.sql = this.sql;
+
+		cloneObj.executor=this.executor;
+		
+		cloneObj.node=this.node;
+		
+		cloneObj.whereClause=this.whereClause;
+		
+		
+		cloneObj.isOrCond =this.isOrCond ;
+
+		cloneObj.rowId =this.rowId ;
+
+		cloneObj.endOut=this.endOut ;
+		cloneObj.init();
+		
+		return cloneObj ;
+	}
 
 }

@@ -21,8 +21,10 @@
 
 package	org.apache.dearbaby.impl.sql.compile;
 
+import java.util.HashMap;
 import java.util.Properties;
 
+import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.util.JBitSet;
@@ -346,6 +348,63 @@ class UnionNode extends SetOperatorNode
 		return treeTop;
 	}
 
+	/* left result will fetch */
+	private boolean leftFetch=true;
+	
+	
+	@Override
+	public void genQuery0() {
+		leftResultSet.genQuery(qm);
+		rightResultSet.genQuery(qm);
+	}
+
+	@Override
+	public void exeQuery0() {
+		leftResultSet.exeQuery();
+		rightResultSet.exeQuery();
+	}
+
+	@Override
+	public boolean fetch() {
+		if(leftFetch==true){
+			leftFetch= leftResultSet.fetch();
+		}
+		
+		if(leftFetch==true){
+			return leftFetch;
+		}
+		return rightResultSet.fetch();
+	}
+
+	@Override
+	public boolean match() {
+		if( leftFetch==true)
+			return leftResultSet.match();
+		return rightResultSet.match();
+	}
+	
+	@Override
+	public Object getColVal(String tbl , String col) {
+		if( leftFetch==true)
+			return leftResultSet.getColVal(tbl,col);
+		return rightResultSet.getColVal(tbl,col);
+	}
+	
+	
+	public void fetchInit() {	
+		leftFetch=true;
+		leftResultSet.fetchInit();
+		rightResultSet.fetchInit();
+	}
+	
+	 /*获取行信息*/
+		@Override
+	    public HashMap getMatchRow(){
+			if( leftFetch==true)
+				return leftResultSet.getMatchRow( );
+			return rightResultSet.getMatchRow( );
+	    }
+	
 	/**
 	 * Convert this object to a String.  See comments in QueryTreeNode.java
 	 * for how this should be done for tree printing.

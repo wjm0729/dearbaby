@@ -23,6 +23,8 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -31,6 +33,7 @@ import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.query.QueryResultManager;
 import org.apache.dearbaby.query.SinQuery;
+import org.apache.dearbaby.sj.ResultMap;
 import org.apache.dearbaby.task.QueryTask;
 import org.apache.derby.catalog.AliasInfo;
 import org.apache.derby.catalog.TypeDescriptor;
@@ -201,7 +204,7 @@ public abstract class QueryTreeNode implements Visitable {
 
 		for (SinQuery q : qs.querys) {
 			q.genSql(qm);
-			q.exeSelect();
+			//q.exeSelect();
 		
 			
 		}
@@ -330,6 +333,54 @@ public abstract class QueryTreeNode implements Visitable {
 		return obj;
 	}
 
+	
+	 /*获取匹配行信息*/
+    public HashMap getMatchRow(){
+    	LinkedHashMap map=new LinkedHashMap();
+	
+		return map;
+    }
+    
+    public HashMap getMatchOrderByRow(OrderByList orderByList ){
+    	LinkedHashMap map=new LinkedHashMap();
+    	
+		return map;
+    }
+    
+    public List<ResultMap> getMatchRows(){
+    	List<ResultMap> list=new ArrayList<ResultMap>();
+    	while ( fetch()) {
+			 
+			if ( match()) {
+				HashMap map= getMatchRow();
+				
+				ResultMap m=new ResultMap(map);
+				
+				list.add(m);
+			}
+			fetchEnd();
+		}
+    	return list;
+    }
+    
+    
+    public List<ResultMap> getMatchOrderByRows(OrderByList orderByList){
+    	List<ResultMap> list=new ArrayList<ResultMap>();
+    	while ( fetch()) {
+			 
+			if ( match()) {
+				HashMap map= getMatchOrderByRow(orderByList);
+				
+				ResultMap m=new ResultMap(map);
+				
+				list.add(m);
+			}
+			fetchEnd();
+		}
+    	return list;
+    }
+    
+    
 	/**
 	 * Gets the constant action factory for this database.
 	 *

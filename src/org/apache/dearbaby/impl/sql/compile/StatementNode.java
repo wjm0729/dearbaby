@@ -21,6 +21,9 @@
 
 package	org.apache.dearbaby.impl.sql.compile;
 
+import java.util.HashMap;
+
+import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -56,6 +59,8 @@ public abstract class StatementNode extends QueryTreeNode
     public ResultColumnList getCols(){
     	return null;
     }
+    
+   
 	/**
 	 * By default, assume StatementNodes are atomic.
 	 * The rare statements that aren't atomic (e.g.

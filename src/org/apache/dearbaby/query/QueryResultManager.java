@@ -76,4 +76,14 @@ public class QueryResultManager extends QueryMananger {
 			querys.add(q);
 		}
 	}
+	
+	
+	public QueryResultManager getNew(){
+		QueryResultManager newObj=new QueryResultManager();
+		for(SinQuery s:querys){
+			newObj.querys.add(s.clone());
+		}
+		
+		return newObj;
+	}
 }

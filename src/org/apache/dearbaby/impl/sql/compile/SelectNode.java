@@ -660,6 +660,63 @@ class SelectNode extends ResultSetNode {
 		return false;
 	}
 
+	
+	
+	 /*获取行信息*/
+		@Override
+	    public HashMap getMatchRow(){
+	    	HashMap map=new HashMap();
+			 
+			for (Object o : resultColumns.v) {
+				ResultColumn t = (ResultColumn) o;
+				if (t._expression instanceof ColumnReference) {
+					ColumnReference c=(ColumnReference)t._expression;
+					String alias = c._qualifiedTableName.tableName;
+					String cName = t.getSourceColumnName(); 
+					Object obj =getColVal(alias,cName);
+					map.put(alias+"."+cName, obj);
+					
+				} else if (t._expression instanceof AggregateNode) {
+					 
+					 
+					String name=QueryUtil.getAggrColName(t);
+					 
+					Object obj =getColVal("#",name);
+					map.put("#"+"."+name, obj);
+				}else if (t._expression instanceof SubqueryNode) {
+					 
+					SubqueryNode subQ=(SubqueryNode)t._expression;
+					Object obj=subQ.getColVal();
+					String name=QueryUtil.getSubSelColName(t);
+					 
+					//Object obj =qt.getColVal("#",name);
+					map.put("#"+"."+name, obj);
+				}
+				
+			}
+			return map;
+	}
+		
+		
+		/*获取行信息*/
+		@Override
+	    public HashMap getMatchOrderByRow(OrderByList orderByList ){
+	    	HashMap map =getMatchRow();
+			 
+	    	for(OrderByColumn oc:orderByList.v ){
+				 
+				if (oc.expression instanceof ColumnReference) {
+					ColumnReference c=(ColumnReference)oc.expression;
+					String alias = c._qualifiedTableName.tableName;
+					String cName = c.getColumnName();
+					Object obj =getColVal(alias,cName);
+					map.put(alias+"."+cName, obj);
+				} 
+				
+			}
+			return map;
+	}
+	
 	private WindowList addInlinedWindowDefinition(WindowList wl,
 			WindowFunctionNode wfn) {
 		WindowDefinitionNode wdn = (WindowDefinitionNode) wfn.getWindow();

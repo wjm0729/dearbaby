@@ -1,6 +1,7 @@
 package org.apache.dearbaby.sj;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.dearbaby.impl.sql.compile.AggregateNode;
@@ -30,51 +31,21 @@ public class DearSelector {
 			qt.genQuery(qm); 
 			qm.readyMutlTask();
 			qt.exeQuery();
+			qm.getTaskCtrl().await();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	
-	public  ResultMap  fetch(){
-		int i=0;
-		int j=0;
+	int i=0;
 	
+	public  ResultMap  fetch(){
+ 
 		while (qt.fetch()) {
 			 
 			if (qt.match()) {
-				HashMap map=new HashMap();
-				ResultColumnList resultColumns= qt.getCols(); 
-				for (Object o : resultColumns.v) {
-					ResultColumn t = (ResultColumn) o;
-					if (t._expression instanceof ColumnReference) {
-						ColumnReference c=(ColumnReference)t._expression;
-						String alias = c._qualifiedTableName.tableName;
-						String cName = t.getSourceColumnName(); 
-						Object obj =qt.getColVal(alias,cName);
-						map.put(alias+"."+cName, obj);
-						
-					} else if (t._expression instanceof AggregateNode) {
-						 
-						 
-						String name=QueryUtil.getAggrColName(t);
-						 
-						Object obj =qt.getColVal("#",name);
-						map.put("#"+"."+name, obj);
-					}else if (t._expression instanceof SubqueryNode) {
-						 
-						SubqueryNode subQ=(SubqueryNode)t._expression;
-						Object obj=subQ.getColVal();
-						String name=QueryUtil.getSubSelColName(t);
-						 
-						//Object obj =qt.getColVal("#",name);
-						map.put("#"+"."+name, obj);
-					}
-					
-				}
-				System.out.println("fetch...... "
-						+ i
-						+ " ,"
-						+ map);
+				HashMap map=qt.getMatchRow();
+				System.out.println("xxxxxxxxxxx "+(i) +map);
 				ResultMap m=new ResultMap(map);
 				i++;
 				return m;
@@ -85,4 +56,8 @@ public class DearSelector {
 		}
 		return null;
 	}
+	
+	 public List<ResultMap>  getResult(){
+		return  qt.getMatchRows();
+	 }
 }

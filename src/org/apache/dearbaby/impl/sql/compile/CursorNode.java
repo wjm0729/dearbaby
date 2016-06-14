@@ -23,8 +23,13 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
+import org.apache.dearbaby.sj.ResultMap;
+import org.apache.dearbaby.util.ComparatorResult;
+import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.sql.compile.Visitor;
@@ -176,6 +181,50 @@ public class CursorNode extends DMLStatementNode {
 		return resultSet.getColVal(tbl,col);
 	}
 
+	/*获取行信息*/
+	@Override
+	public HashMap getMatchOrderByRow(OrderByList orderByList ){
+		return resultSet.getMatchOrderByRow(orderByList);
+	}
+	
+	 /*获取行信息*/
+	@Override
+	public HashMap getMatchRow(){
+		return resultSet.getMatchRow();
+	}
+    public HashMap getMatchRow_1(){
+    	HashMap map=new HashMap();
+		ResultColumnList resultColumns=  getCols(); 
+		for (Object o : resultColumns.v) {
+			ResultColumn t = (ResultColumn) o;
+			if (t._expression instanceof ColumnReference) {
+				ColumnReference c=(ColumnReference)t._expression;
+				String alias = c._qualifiedTableName.tableName;
+				String cName = t.getSourceColumnName(); 
+				Object obj =getColVal(alias,cName);
+				map.put(alias+"."+cName, obj);
+				
+			} else if (t._expression instanceof AggregateNode) {
+				 
+				 
+				String name=QueryUtil.getAggrColName(t);
+				 
+				Object obj =getColVal("#",name);
+				map.put("#"+"."+name, obj);
+			}else if (t._expression instanceof SubqueryNode) {
+				 
+				SubqueryNode subQ=(SubqueryNode)t._expression;
+				Object obj=subQ.getColVal();
+				String name=QueryUtil.getSubSelColName(t);
+				 
+				//Object obj =qt.getColVal("#",name);
+				map.put("#"+"."+name, obj);
+			}
+			
+		}
+		return map;
+    }
+	
 	/**
 	 * Convert this object to a String. See comments in QueryTreeNode.java for
 	 * how this should be done for tree printing.
@@ -309,6 +358,15 @@ public class CursorNode extends DMLStatementNode {
 	}
 
 	 
+	
+	public List<ResultMap> getMatchRows(){
+		if(orderByList==null){
+			return super.getMatchRows();
+		}
+		List<ResultMap>  list= getMatchOrderByRows(orderByList);
+		Collections.sort(list, new ComparatorResult(orderByList));  
+		return list;
+	}
 
 	 
 	/**

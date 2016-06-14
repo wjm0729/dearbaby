@@ -43,7 +43,7 @@ import org.apache.derby.shared.common.sanity.SanityManager;
  * and the last column in the list is the least significant.
  *
  */
-class OrderByList extends OrderedColumnList<OrderByColumn>
+public class OrderByList extends OrderedColumnList<OrderByColumn>
 						implements RequiredRowOrdering {
 
 	private boolean allAscending = true;

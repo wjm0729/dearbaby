@@ -35,7 +35,7 @@ import org.apache.derby.shared.common.sanity.SanityManager;
  * columns in that query, and that positions are within range.
  *
  */
-class OrderByColumn extends OrderedColumn {
+public class OrderByColumn extends OrderedColumn {
 
 	private ResultColumn	resultCol;
 	private boolean			ascending = true;
