@@ -6,7 +6,7 @@ public class QueryTaskCtrl {
 
 	 
     private CountDownLatch latch; 
-    public QueryTaskCtrl(int ts){
+    public void setCount(int ts){
     	latch=new CountDownLatch(ts);
     }
     

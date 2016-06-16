@@ -28,10 +28,11 @@ public class DearTest {
 		sql = "  SELECT D.DOCTORID , D.DOCTORNAME , D.ID   FROM DOCTORINFORPARAMETER D  WHERE  d.id>10 AND d.id<1000  ";
 	
 		
-	//	sql="SELECT a.doctorId   , a.doctorName  FROM WorkInforParameter  a  UNION all SELECT b.doctorId   , b.doctorName  FROM doctorinforparameter  b  UNION ALL SELECT c.doctorId   , c.doctorName  FROM doctorinforparameter  c ";
+		sql="select e.doctorId from (SELECT a.doctorId   , a.doctorName  FROM WorkInforParameter  a  UNION all SELECT b.doctorId   , b.doctorName  FROM doctorinforparameter  b  UNION ALL SELECT c.doctorId   , c.doctorName  FROM doctorinforparameter  c ) e";
+		sql="select distinct e.doctorName from doctorinforparameter e ";
 		
 		
-		sql="SELECT a.doctorName from DoctorInforParameter  a order by a.doctorid";
+		//sql="SELECT a.doctorName from DoctorInforParameter  a order by a.doctorid";
 		 DearSelector selector =new DearSelector();  
 		 selector.query(sql);
 		/*

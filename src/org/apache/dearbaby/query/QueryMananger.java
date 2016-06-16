@@ -13,15 +13,9 @@ public class QueryMananger {
 	public IExecutor executor;
 	public String sql="";
 	public SinQuery currWhereQuery;
-	private QueryTaskCtrl taskCtrl;
 	 
-	public void readyMutlTask(){
-		taskCtrl=new QueryTaskCtrl(querys.size());
-	}
+	 
 	
-	public QueryTaskCtrl getTaskCtrl(){
-		return taskCtrl;
-	}
 	
 	public SinQuery foundQuery(String alias, String table) {
 		SinQuery found = null;

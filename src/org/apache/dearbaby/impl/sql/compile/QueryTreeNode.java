@@ -32,6 +32,7 @@ import java.util.SortedSet;
 import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.query.QueryResultManager;
+import org.apache.dearbaby.query.QueryTaskCtrl;
 import org.apache.dearbaby.query.SinQuery;
 import org.apache.dearbaby.sj.ResultMap;
 import org.apache.dearbaby.task.QueryTask;
@@ -201,13 +202,20 @@ public abstract class QueryTreeNode implements Visitable {
 	}
 
 	public void exeQuery() {
-
+		QueryTaskCtrl qtc=new QueryTaskCtrl();
+		int i=0;
+		for (SinQuery q : qs.querys) {
+			if(q.setTaskCtrl(qtc)){
+				i++;
+			}
+			
+		}
+		qtc.setCount(i);
 		for (SinQuery q : qs.querys) {
 			q.genSql(qm);
 			//q.exeSelect();
-		
-			
 		}
+		qtc.await();
 		
 		exeQuery0();
 		exeFilter();
@@ -289,7 +297,14 @@ public abstract class QueryTreeNode implements Visitable {
 			return rowValue.getCurrVal(alias, colName);
 		}else{
 			SinQuery sq= qm.findFetchRow(alias);
+			try{
 			return sq.getCurrCol(colName);
+			}catch(Exception e){
+				System.out.println("ddddddddddddd" + alias);
+				SinQuery s=qm.findFetchRow(alias);
+				s.getCurrCol(colName);
+				return null;
+			}
 		}
 	}
 	
@@ -335,13 +350,20 @@ public abstract class QueryTreeNode implements Visitable {
 
 	
 	 /*获取匹配行信息*/
-    public HashMap getMatchRow(){
+    protected HashMap getMatchRow(){
     	LinkedHashMap map=new LinkedHashMap();
 	
 		return map;
     }
     
-    public HashMap getMatchOrderByRow(OrderByList orderByList ){
+    /*获取匹配行信息*/
+    protected HashMap getMatchRow(String alias){
+    	LinkedHashMap map=new LinkedHashMap();
+	
+		return map;
+    }
+    
+    protected HashMap getMatchOrderByRow(OrderByList orderByList ){
     	LinkedHashMap map=new LinkedHashMap();
     	
 		return map;

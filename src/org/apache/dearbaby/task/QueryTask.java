@@ -5,16 +5,19 @@ import org.apache.dearbaby.query.SinQuery;
 
 public class QueryTask implements Runnable{
 	SinQuery sinQuery ;
-	QueryMananger qm ;
-	public QueryTask(SinQuery _sin,QueryMananger _qm ){
+	
+	public QueryTask(SinQuery _sin ){
 		sinQuery=_sin;
-		qm=_qm;
+	
 	}
 	public void run(){
 		try{
 			sinQuery.exeSelect();
 		}finally{
-			qm.getTaskCtrl().finishOne();
+			if(sinQuery.taskCtrl!=null){
+				sinQuery.taskCtrl.finishOne();
+			}
+			//qm.getTaskCtrl().finishOne();
 		}
 		
 	}

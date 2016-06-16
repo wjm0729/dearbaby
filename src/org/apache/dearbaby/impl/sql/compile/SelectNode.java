@@ -23,12 +23,15 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.RowColumn;
 import org.apache.dearbaby.query.SinQuery;
+import org.apache.dearbaby.sj.ResultMap;
 import org.apache.dearbaby.util.ColCompare;
 import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
@@ -664,7 +667,7 @@ class SelectNode extends ResultSetNode {
 	
 	 /*获取行信息*/
 		@Override
-	    public HashMap getMatchRow(){
+	    protected HashMap getMatchRow(){
 	    	HashMap map=new HashMap();
 			 
 			for (Object o : resultColumns.v) {
@@ -697,6 +700,66 @@ class SelectNode extends ResultSetNode {
 			return map;
 	}
 		
+		
+		 /*获取行信息*/
+		@Override
+	    protected HashMap getMatchRow(String _alias){
+	    	HashMap map=new HashMap();
+			 
+			for (Object o : resultColumns.v) {
+				ResultColumn t = (ResultColumn) o;
+				if (t._expression instanceof ColumnReference) {
+					ColumnReference c=(ColumnReference)t._expression;
+					String alias = c._qualifiedTableName.tableName;
+					String cName = t.getSourceColumnName(); 
+					Object obj =getColVal(alias,cName);
+					map.put(cName, obj);
+					
+				} else if (t._expression instanceof AggregateNode) {
+					 
+					 
+					String name=QueryUtil.getAggrColName(t);
+					 
+					Object obj =getColVal("#",name);
+					map.put(name, obj);
+				}else if (t._expression instanceof SubqueryNode) {
+					 
+					SubqueryNode subQ=(SubqueryNode)t._expression;
+					Object obj=subQ.getColVal();
+					String name=QueryUtil.getSubSelColName(t);
+					 
+					//Object obj =qt.getColVal("#",name);
+					map.put(name, obj);
+				}
+				
+			}
+			return map;
+	}
+	@Override	
+	public List<ResultMap> getMatchOrderByRows(OrderByList orderByList){
+		List<ResultMap> list=super.getMatchOrderByRows(orderByList);
+		if(hasDistinct()){
+			Set<ResultMap> s=new HashSet<ResultMap>();
+			s.addAll(list);
+			List<ResultMap> l=new ArrayList<ResultMap>();
+			l.addAll(s);
+			return l;
+		}
+		return list;
+	}
+	
+	@Override	
+	public List<ResultMap> getMatchRows(){
+		List<ResultMap> list=super.getMatchRows();
+		if(hasDistinct()){
+			Set<ResultMap> s=new HashSet<ResultMap>();
+			s.addAll(list);
+			List<ResultMap> l=new ArrayList<ResultMap>();
+			l.addAll(s);
+			return l;
+		}
+		return list;
+	}
 		
 		/*获取行信息*/
 		@Override

@@ -29,9 +29,9 @@ public class DearSelector {
 			qm.executor=new JdbcExecutor();
 			qm.sql=sql;
 			qt.genQuery(qm); 
-			qm.readyMutlTask();
+			//qm.readyMutlTask();
 			qt.exeQuery();
-			qm.getTaskCtrl().await();
+			//qm.getTaskCtrl().await();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -39,23 +39,7 @@ public class DearSelector {
 	
 	int i=0;
 	
-	public  ResultMap  fetch(){
- 
-		while (qt.fetch()) {
-			 
-			if (qt.match()) {
-				HashMap map=qt.getMatchRow();
-				System.out.println("xxxxxxxxxxx "+(i) +map);
-				ResultMap m=new ResultMap(map);
-				i++;
-				return m;
-			}
-
-			qt.fetchEnd();
- 
-		}
-		return null;
-	}
+	
 	
 	 public List<ResultMap>  getResult(){
 		return  qt.getMatchRows();

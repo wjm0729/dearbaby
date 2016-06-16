@@ -192,6 +192,9 @@ public class CursorNode extends DMLStatementNode {
 	public HashMap getMatchRow(){
 		return resultSet.getMatchRow();
 	}
+	
+ 
+	
     public HashMap getMatchRow_1(){
     	HashMap map=new HashMap();
 		ResultColumnList resultColumns=  getCols(); 
@@ -361,9 +364,9 @@ public class CursorNode extends DMLStatementNode {
 	
 	public List<ResultMap> getMatchRows(){
 		if(orderByList==null){
-			return super.getMatchRows();
+			return resultSet.getMatchRows();
 		}
-		List<ResultMap>  list= getMatchOrderByRows(orderByList);
+		List<ResultMap>  list= resultSet.getMatchOrderByRows(orderByList);
 		Collections.sort(list, new ComparatorResult(orderByList));  
 		return list;
 	}

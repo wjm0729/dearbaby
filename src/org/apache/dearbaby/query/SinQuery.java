@@ -16,6 +16,8 @@ public class SinQuery {
 	public ArrayList<String> columns = new ArrayList<String>();
 	public ArrayList<Map> results = new ArrayList<Map>();
 	
+	public QueryTaskCtrl taskCtrl=null;
+	
 	/*默认不是简单查询 */
 	public boolean simpleSelect=false;
 
@@ -35,6 +37,14 @@ public class SinQuery {
 	private int rowId = 0;
 
 	private boolean endOut = false;
+	
+	public boolean setTaskCtrl(QueryTaskCtrl taskCtrl){
+		if(this.taskCtrl!=null){
+			return false;
+		}
+		this.taskCtrl=taskCtrl;
+		return true;
+	}
 
 	public void genSql(QueryMananger q) {
 		String s = "select ";
@@ -55,13 +65,13 @@ public class SinQuery {
 			s=s+ " where " + andCondition;
 		}
 		sql = s;
-		addExeTask(q);
+		addExeTask( );
 		//exeSelect();
 		System.out.println("sql---:  " + sql);
 	}
 
 	public Map getCurrRow() {
-		Map m = new HashMap();
+		
 		if (results.size() == 0) {
 			return null;
 		}
@@ -97,8 +107,8 @@ public class SinQuery {
 		return endOut;
 	}
 
-	public void addExeTask(QueryMananger qm){
-		QueryTask qtask=new QueryTask(this,qm);
+	public void addExeTask(){
+		QueryTask qtask=new QueryTask(this);
 		TaskPoolManager.putTask(qtask);
 	}
 	

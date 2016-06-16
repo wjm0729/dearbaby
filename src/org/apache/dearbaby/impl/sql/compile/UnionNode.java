@@ -404,6 +404,14 @@ class UnionNode extends SetOperatorNode
 				return leftResultSet.getMatchRow( );
 			return rightResultSet.getMatchRow( );
 	    }
+		
+		@Override
+	    public HashMap getMatchRow(String _alias){
+			if( leftFetch==true)
+				return leftResultSet.getMatchRow( _alias);
+			return rightResultSet.getMatchRow( _alias);
+	    }
+		
 	
 	/**
 	 * Convert this object to a String.  See comments in QueryTreeNode.java

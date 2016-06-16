@@ -154,7 +154,37 @@ class FromSubquery extends FromTable
 		subquery.exeQuery();
 	}
 	
-	public ArrayList<Map> getRest(){
+	public ArrayList<Map> getRest( ){
+		if(subquery instanceof SelectNode ){
+			return getSelectRest();
+		}else{
+			return getUnionRest();
+		}
+	}
+	
+	private   ArrayList<Map> getUnionRest(){
+		return getSelectRest();
+	}
+	
+	private ArrayList<Map> getSelectRest(){
+		
+		ArrayList<Map> list=new ArrayList<Map>();
+		while ( subquery.fetch()) {
+			 
+			if (subquery.match()) {
+				Map map=subquery.getMatchRow(correlationName);
+				 
+				list.add(map); 
+			}
+
+			 fetchEnd();
+ 
+		}
+		return list;
+	}
+	
+	/*
+	public ArrayList<Map> getSelectRest(){
 		SelectNode seleQuery=(SelectNode)subquery;
 		ArrayList<Map> list=new ArrayList<Map>();
 		while ( subquery.fetch()) {
@@ -198,6 +228,7 @@ class FromSubquery extends FromTable
 		}
 		return list;
 	}
+	*/
     
 	/** 
 	 * Determine whether or not the specified name is an exposed name in
